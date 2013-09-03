@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)http://192.168.2.231/projects?name=hotel -->
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title></title>
+  <meta charset="UTF-8">
+  <meta name="google" content="notranslate">
+  <meta http-equiv="Content-Language" content="en">
+  <link href="/static/css/application-cb3ce58832cb61fbc884990e151cb6c6.css" media="all" rel="stylesheet" type="text/css">
+  <script type="text/javascript" charset="UTF-8" src="/static/js/logb01.js"></script><script src="/static/js/hm.js"></script><script src="/static/js/application-238da6bf75ffd205c3c116da2bb6530e.js" type="text/javascript"></script>
+  <script src="/static/js/prettyprint.js" type="text/javascript"></script>
+  <meta content="authenticity_token" name="csrf-param">
+  <meta content="zzyhVPACkAR6BuSJSzyOeqpI07qmEPI5rqIEMM8RAe0=" name="csrf-token">
+  <style>undefined</style><style>undefined</style><script></script><script id="hp_same_"></script><script id="hp_done_"></script><style type="text/css">#yddContainer{display:block;font-family:Microsoft YaHei;position:relative;width:100%;height:100%;top:-4px;left:-4px;font-size:12px;border:1px solid}#yddTop{display:block;height:22px}#yddTopBorderlr{display:block;position:static;height:17px;padding:2px 28px;line-height:17px;font-size:12px;color:#5079bb;font-weight:bold;border-style:none solid;border-width:1px}#yddTopBorderlr .ydd-sp{position:absolute;top:2px;height:0;overflow:hidden}.ydd-icon{left:5px;width:17px;padding:0px 0px 0px 0px;padding-top:17px;background-position:-16px -44px}.ydd-close{right:5px;width:16px;padding-top:16px;background-position:left -44px}#yddKeyTitle{float:left;text-decoration:none}#yddMiddle{display:block;margin-bottom:10px}.ydd-tabs{display:block;margin:5px 0;padding:0 5px;height:18px;border-bottom:1px solid}.ydd-tab{display:block;float:left;height:18px;margin:0 5px -1px 0;padding:0 4px;line-height:18px;border:1px solid;border-bottom:none}.ydd-trans-container{display:block;line-height:160%}.ydd-trans-container a{text-decoration:none;}#yddBottom{position:absolute;bottom:0;left:0;width:100%;height:22px;line-height:22px;overflow:hidden;background-position:left -22px}.ydd-padding010{padding:0 10px}#yddWrapper{color:#252525;z-index:10001;background:url(chrome-extension://eopjamdnofihpioajgfdikhhbobonhbb/ab20.png);}#yddContainer{background:#fff;border-color:#4b7598}#yddTopBorderlr{border-color:#f0f8fc}#yddWrapper .ydd-sp{background-image:url(chrome-extension://eopjamdnofihpioajgfdikhhbobonhbb/ydd-sprite.png)}#yddWrapper a,#yddWrapper a:hover,#yddWrapper a:visited{color:#50799b}#yddWrapper .ydd-tabs{color:#959595}.ydd-tabs,.ydd-tab{background:#fff;border-color:#d5e7f3}#yddBottom{color:#363636}#yddWrapper{min-width:250px;max-width:400px;}</style></head>
+  <body>
+    <script type="text/javascript">
+
+    function trim_year(str) {
+      var index = str.indexOf('-');
+      if (index == -1) {
+        return str;
+      } else {
+        return str.substr(index + 1);
+      }
+    }
+
+    $(function () {
+      var chart;
+      $(document).ready(function() {
+        var date_array = [
+        trim_year('2013-08-15'),
+        trim_year('2013-08-16'),
+        trim_year('2013-08-17'),
+        trim_year('2013-08-18'),
+        trim_year('2013-08-19'),
+        trim_year('2013-08-20'),
+        trim_year('2013-08-21'),
+        trim_year('2013-08-22'),
+        trim_year('2013-08-23'),
+        trim_year('2013-08-24'),
+        trim_year('2013-08-25'),
+        trim_year('2013-08-26'),
+        trim_year('2013-08-27'),
+        trim_year('2013-08-28'),
+        trim_year('2013-08-29'),
+        ];
+
+        var count_array = [
+        {
+          name: 'iMeituan 1',
+          data: [
+          11,
+          11,
+          14,
+          9,
+          7,
+          12,
+          1,
+          8,
+          10,
+          12,
+          9,
+          5,
+          7,
+          12,
+          0,
+          ]
+        },
+        ];
+
+        chart = new Highcharts.Chart({
+          chart: {
+            renderTo: 'container',
+            type: 'line',
+            marginRight: 130,
+            marginBottom: 50
+          },
+          title: {
+            text: '最近一周 crash 趋势',
+                x: -20 //center
+              },
+              subtitle: {
+                text: '按 crash 发生时的设备时间。上报可能有几天的延迟，因此最近几天的数据可能不准确',
+                x: -20
+              },
+              xAxis: {
+                categories: date_array
+              },
+              yAxis: {
+                title: {
+                  text: 'crash 次数'
+                },
+                plotLines: [{
+                  value: 0,
+                  width: 1,
+                  color: '#808080'
+                }]
+              },
+              tooltip: {
+                formatter: function() {
+                  return '<b>'+ this.series.name +'</b><br/>'+
+                  this.x +': '+ this.y +'次';
+                }
+              },
+              legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'top',
+                x: -10,
+                y: 100,
+                borderWidth: 0
+              },
+              series: count_array
+            });
+});
+
+});
+</script>
+
+
+<div class="head">
+  <div class="head-inner">
+    <a href="/">all</a> &gt; <span>{{.App}}</span>
+  </div>
+</div>
+
+<div class="content white">
+
+  <div id="container" style="min-width: 400px; height: 500px; margin: 0px auto; border-bottom: solid 20px black;"><div class="highcharts-container" id="highcharts-0" style="position: relative; overflow: hidden; width: 800px; height: 500px; text-align: left; line-height: normal; z-index: 0; font-family: &#39;Lucida Grande&#39;, &#39;Lucida Sans Unicode&#39;, Verdana, Arial, Helvetica, sans-serif; font-size: 12px;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="800" height="500"><defs><clippath id="highcharts-1"><rect rx="0" ry="0" fill="none" x="0" y="0" width="9999" height="500" stroke-width="0.000001"></rect></clippath><clippath id="highcharts-2"><rect fill="none" x="0" y="0" width="601" height="395"></rect></clippath><lineargradient x1="0" y1="0" x2="0" y2="20" gradientUnits="userSpaceOnUse" id="highcharts-5"><stop offset="0.4" stop-color="#F7F7F7" stop-opacity="1"></stop><stop offset="0.6" stop-color="#E3E3E3" stop-opacity="1"></stop></lineargradient><lineargradient x1="0" y1="0" x2="0" y2="20" gradientUnits="userSpaceOnUse" id="highcharts-6"><stop offset="0.4" stop-color="#F7F7F7" stop-opacity="1"></stop><stop offset="0.6" stop-color="#E3E3E3" stop-opacity="1"></stop></lineargradient></defs><rect rx="5" ry="5" fill="#FFFFFF" x="0" y="0" width="800" height="500" stroke-width="0.000001"></rect><path fill="none" d="M 69 394.5 L 670 394.5" stroke="#808080" stroke-width="1"></path><g class="highcharts-grid" zIndex="1"></g><g class="highcharts-grid" zIndex="1"><path fill="none" d="M 69 394.5 L 670 394.5" stroke="#C0C0C0" stroke-width="1" zIndex="1"></path><path fill="none" d="M 69 337.5 L 670 337.5" stroke="#C0C0C0" stroke-width="1" zIndex="1"></path><path fill="none" d="M 69 281.5 L 670 281.5" stroke="#C0C0C0" stroke-width="1" zIndex="1"></path><path fill="none" d="M 69 224.5 L 670 224.5" stroke="#C0C0C0" stroke-width="1" zIndex="1"></path><path fill="none" d="M 69 168.5 L 670 168.5" stroke="#C0C0C0" stroke-width="1" zIndex="1"></path><path fill="none" d="M 69 111.5 L 670 111.5" stroke="#C0C0C0" stroke-width="1" zIndex="1"></path><path fill="none" d="M 69 55.5 L 670 55.5" stroke="#C0C0C0" stroke-width="1" zIndex="1"></path><path fill="none" d="M 69 450.5 L 670 450.5" stroke="#C0C0C0" stroke-width="1" zIndex="1"></path></g><g class="highcharts-axis" zIndex="2"><path fill="none" d="M 148.5 450 L 148.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 188.5 450 L 188.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 228.5 450 L 228.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 268.5 450 L 268.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 308.5 450 L 308.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 348.5 450 L 348.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 389.5 450 L 389.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 429.5 450 L 429.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 469.5 450 L 469.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 509.5 450 L 509.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 549.5 450 L 549.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 589.5 450 L 589.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 629.5 450 L 629.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 669.5 450 L 669.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 108.5 450 L 108.5 455" stroke="#C0D0E0" stroke-width="1"></path><path fill="none" d="M 69 450.5 L 670 450.5" stroke="#C0D0E0" stroke-width="1" zIndex="7" visibility="visible"></path></g><g class="highcharts-axis" zIndex="2"><text x="24.4375" y="252.5" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:12px;color:#6D869F;font-weight:bold;fill:#6D869F;" zIndex="7" transform="rotate(270 24.4375 252)" text-anchor="middle" visibility="visible"><tspan x="24.4375">crash 次数</tspan></text></g><g class="highcharts-series-group" zIndex="3"><g class="highcharts-series" visibility="visible" zIndex="0.1" transform="translate(69,55)" clip-path="url(#highcharts-2)"><path fill="none" d="M 20.033333333333335 90.3 L 60.10000000000001 90.3 L 100.16666666666667 22.6 L 140.23333333333335 135.4 L 180.3 180.6 L 220.36666666666667 67.7 L 260.4333333333334 316 L 300.50000000000006 158 L 340.5666666666667 112.9 L 380.6333333333334 67.7 L 420.70000000000005 135.4 L 460.7666666666667 225.7 L 500.8333333333334 180.6 L 540.9 67.7 L 580.9666666666667 338.6" stroke="black" stroke-width="5" zIndex="1" isShadow="true" stroke-opacity="0.049999999999999996" transform="translate(1, 1)"></path><path fill="none" d="M 20.033333333333335 90.3 L 60.10000000000001 90.3 L 100.16666666666667 22.6 L 140.23333333333335 135.4 L 180.3 180.6 L 220.36666666666667 67.7 L 260.4333333333334 316 L 300.50000000000006 158 L 340.5666666666667 112.9 L 380.6333333333334 67.7 L 420.70000000000005 135.4 L 460.7666666666667 225.7 L 500.8333333333334 180.6 L 540.9 67.7 L 580.9666666666667 338.6" stroke="black" stroke-width="3" zIndex="1" isShadow="true" stroke-opacity="0.09999999999999999" transform="translate(1, 1)"></path><path fill="none" d="M 20.033333333333335 90.3 L 60.10000000000001 90.3 L 100.16666666666667 22.6 L 140.23333333333335 135.4 L 180.3 180.6 L 220.36666666666667 67.7 L 260.4333333333334 316 L 300.50000000000006 158 L 340.5666666666667 112.9 L 380.6333333333334 67.7 L 420.70000000000005 135.4 L 460.7666666666667 225.7 L 500.8333333333334 180.6 L 540.9 67.7 L 580.9666666666667 338.6" stroke="black" stroke-width="1" zIndex="1" isShadow="true" stroke-opacity="0.15" transform="translate(1, 1)"></path><path fill="none" d="M 20.033333333333335 90.3 L 60.10000000000001 90.3 L 100.16666666666667 22.6 L 140.23333333333335 135.4 L 180.3 180.6 L 220.36666666666667 67.7 L 260.4333333333334 316 L 300.50000000000006 158 L 340.5666666666667 112.9 L 380.6333333333334 67.7 L 420.70000000000005 135.4 L 460.7666666666667 225.7 L 500.8333333333334 180.6 L 540.9 67.7 L 580.9666666666667 338.6" stroke="#4572A7" stroke-width="2" zIndex="1"></path></g><g class="highcharts-markers" visibility="visible" zIndex="0.1" transform="translate(69,55)" clip-path="none"><path fill="#4572A7" d="M 580.9666666666667 334.6 C 586.2946666666667 334.6 586.2946666666667 342.6 580.9666666666667 342.6 C 575.6386666666667 342.6 575.6386666666667 334.6 580.9666666666667 334.6 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 540.9 63.7 C 546.228 63.7 546.228 71.7 540.9 71.7 C 535.572 71.7 535.572 63.7 540.9 63.7 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 500.8333333333334 176.6 C 506.1613333333334 176.6 506.1613333333334 184.6 500.8333333333334 184.6 C 495.50533333333345 184.6 495.50533333333345 176.6 500.8333333333334 176.6 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 460.7666666666667 221.7 C 466.0946666666667 221.7 466.0946666666667 229.7 460.7666666666667 229.7 C 455.43866666666673 229.7 455.43866666666673 221.7 460.7666666666667 221.7 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 420.70000000000005 131.4 C 426.028 131.4 426.028 139.4 420.70000000000005 139.4 C 415.37200000000007 139.4 415.37200000000007 131.4 420.70000000000005 131.4 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 380.6333333333334 63.7 C 385.96133333333336 63.7 385.96133333333336 71.7 380.6333333333334 71.7 C 375.3053333333334 71.7 375.3053333333334 63.7 380.6333333333334 63.7 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 340.5666666666667 108.9 C 345.8946666666667 108.9 345.8946666666667 116.9 340.5666666666667 116.9 C 335.23866666666675 116.9 335.23866666666675 108.9 340.5666666666667 108.9 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 300.50000000000006 154 C 305.82800000000003 154 305.82800000000003 162 300.50000000000006 162 C 295.1720000000001 162 295.1720000000001 154 300.50000000000006 154 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 260.4333333333334 312 C 265.76133333333337 312 265.76133333333337 320 260.4333333333334 320 C 255.1053333333334 320 255.1053333333334 312 260.4333333333334 312 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 220.36666666666667 63.7 C 225.69466666666668 63.7 225.69466666666668 71.7 220.36666666666667 71.7 C 215.03866666666667 71.7 215.03866666666667 63.7 220.36666666666667 63.7 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 180.3 176.6 C 185.62800000000001 176.6 185.62800000000001 184.6 180.3 184.6 C 174.972 184.6 174.972 176.6 180.3 176.6 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 140.23333333333335 131.4 C 145.56133333333335 131.4 145.56133333333335 139.4 140.23333333333335 139.4 C 134.90533333333335 139.4 134.90533333333335 131.4 140.23333333333335 131.4 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 100.16666666666667 18.6 C 105.49466666666667 18.6 105.49466666666667 26.6 100.16666666666667 26.6 C 94.83866666666667 26.6 94.83866666666667 18.6 100.16666666666667 18.6 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 60.10000000000001 86.3 C 65.42800000000001 86.3 65.42800000000001 94.3 60.10000000000001 94.3 C 54.772000000000006 94.3 54.772000000000006 86.3 60.10000000000001 86.3 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><path fill="#4572A7" d="M 20.033333333333335 86.3 C 25.361333333333334 86.3 25.361333333333334 94.3 20.033333333333335 94.3 C 14.705333333333336 94.3 14.705333333333336 86.3 20.033333333333335 86.3 Z" stroke="#FFFFFF" stroke-width="0.000001"></path></g></g><text x="380" y="25" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:16px;color:#3E576F;fill:#3E576F;" text-anchor="middle" class="highcharts-title" zIndex="4"><tspan x="380">最近一周 crash 趋势</tspan></text><text x="380" y="40" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:12px;color:#6D869F;fill:#6D869F;" text-anchor="middle" class="highcharts-subtitle" zIndex="4"><tspan x="380">按 crash 发生时的设备时间。上报可能有几天的延迟，因此最近几天的数据可能不准确</tspan></text><g class="highcharts-legend" zIndex="7" transform="translate(690,110)"><g zIndex="1" clip-path="url(#highcharts-1)"><g><g class="highcharts-legend-item" zIndex="1" transform="translate(8,3)"><path fill="none" d="M 0 11 L 16 11" stroke-width="2" stroke="#4572A7"></path><path fill="#4572A7" d="M 8 7 C 13.328 7 13.328 15 8 15 C 2.6719999999999997 15 2.6719999999999997 7 8 7 Z" stroke="#FFFFFF" stroke-width="0.000001"></path><text x="21" y="15" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:12px;cursor:pointer;color:#3E576F;fill:#3E576F;" text-anchor="start" zIndex="2"><tspan x="21">iMeituan 1</tspan></text></g></g></g></g><g class="highcharts-axis-labels" zIndex="7"><text x="89.03333333333333" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="89.03333333333333">08-</tspan><tspan dy="14px" x="89.03333333333333">15</tspan></text><text x="129.1" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="129.1">08-</tspan><tspan dy="14px" x="129.1">16</tspan></text><text x="169.16666666666666" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="169.16666666666666">08-</tspan><tspan dy="14px" x="169.16666666666666">17</tspan></text><text x="209.23333333333335" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="209.23333333333335">08-</tspan><tspan dy="14px" x="209.23333333333335">18</tspan></text><text x="249.30000000000004" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="249.30000000000004">08-</tspan><tspan dy="14px" x="249.30000000000004">19</tspan></text><text x="289.3666666666666" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="289.3666666666666">08-</tspan><tspan dy="14px" x="289.3666666666666">20</tspan></text><text x="329.43333333333334" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="329.43333333333334">08-</tspan><tspan dy="14px" x="329.43333333333334">21</tspan></text><text x="369.5" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="369.5">08-</tspan><tspan dy="14px" x="369.5">22</tspan></text><text x="409.5666666666667" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="409.5666666666667">08-</tspan><tspan dy="14px" x="409.5666666666667">23</tspan></text><text x="449.6333333333334" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="449.6333333333334">08-</tspan><tspan dy="14px" x="449.6333333333334">24</tspan></text><text x="489.70000000000005" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="489.70000000000005">08-</tspan><tspan dy="14px" x="489.70000000000005">25</tspan></text><text x="529.7666666666668" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="529.7666666666668">08-</tspan><tspan dy="14px" x="529.7666666666668">26</tspan></text><text x="569.8333333333334" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="569.8333333333334">08-</tspan><tspan dy="14px" x="569.8333333333334">27</tspan></text><text x="609.9000000000001" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="609.9000000000001">08-</tspan><tspan dy="14px" x="609.9000000000001">28</tspan></text><text x="649.9666666666667" y="464" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:20px;color:#666;line-height:14px;fill:#666;" text-anchor="middle" visibility="visible"><tspan x="649.9666666666667">08-</tspan><tspan dy="14px" x="649.9666666666667">29</tspan></text></g><g class="highcharts-axis-labels" zIndex="7"><text x="61" y="455.5296875" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:281px;color:#666;line-height:14px;fill:#666;" text-anchor="end" visibility="visible"><tspan x="61">-2.5</tspan></text><text x="61" y="399.1011160714286" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:281px;color:#666;line-height:14px;fill:#666;" text-anchor="end" visibility="visible"><tspan x="61">0</tspan></text><text x="61" y="342.67254464285713" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:281px;color:#666;line-height:14px;fill:#666;" text-anchor="end" visibility="visible"><tspan x="61">2.5</tspan></text><text x="61" y="286.2439732142857" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:281px;color:#666;line-height:14px;fill:#666;" text-anchor="end" visibility="visible"><tspan x="61">5</tspan></text><text x="61" y="229.81540178571427" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:281px;color:#666;line-height:14px;fill:#666;" text-anchor="end" visibility="visible"><tspan x="61">7.5</tspan></text><text x="61" y="173.38683035714283" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:281px;color:#666;line-height:14px;fill:#666;" text-anchor="end" visibility="visible"><tspan x="61">10</tspan></text><text x="61" y="116.95825892857138" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:281px;color:#666;line-height:14px;fill:#666;" text-anchor="end" visibility="visible"><tspan x="61">12.5</tspan></text><text x="61" y="60.5296875" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:11px;width:281px;color:#666;line-height:14px;fill:#666;" text-anchor="end" visibility="visible"><tspan x="61">15</tspan></text></g><g class="highcharts-tooltip" zIndex="8" style="padding:0;white-space:nowrap;" visibility="hidden"><rect rx="5" ry="5" fill="none" x="0" y="0" width="10" height="10" stroke-width="5" fill-opacity="0.85" isShadow="true" stroke="black" stroke-opacity="0.049999999999999996" transform="translate(1, 1)"></rect><rect rx="5" ry="5" fill="none" x="0" y="0" width="10" height="10" stroke-width="3" fill-opacity="0.85" isShadow="true" stroke="black" stroke-opacity="0.09999999999999999" transform="translate(1, 1)"></rect><rect rx="5" ry="5" fill="none" x="0" y="0" width="10" height="10" stroke-width="1" fill-opacity="0.85" isShadow="true" stroke="black" stroke-opacity="0.15" transform="translate(1, 1)"></rect><rect rx="5" ry="5" fill="rgb(255,255,255)" x="0" y="0" width="10" height="10" stroke-width="2" fill-opacity="0.85"></rect><text x="5" y="18" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:12px;color:#333333;fill:#333333;" zIndex="1"></text></g><text x="790" y="495" style="font-family:&quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, Verdana, Arial, Helvetica, sans-serif;font-size:10px;cursor:pointer;color:#909090;fill:#909090;" text-anchor="end" zIndex="8"><tspan x="790">Highcharts.com</tspan></text><g class="highcharts-tracker" zIndex="9"><g visibility="visible" zIndex="1" transform="translate(69,55)"><path fill="none" d="M 10.033333333333335 90.3 L 20.033333333333335 90.3 L 60.10000000000001 90.3 L 100.16666666666667 22.6 L 140.23333333333335 135.4 L 180.3 180.6 L 220.36666666666667 67.7 L 260.4333333333334 316 L 300.50000000000006 158 L 340.5666666666667 112.9 L 380.6333333333334 67.7 L 420.70000000000005 135.4 L 460.7666666666667 225.7 L 500.8333333333334 180.6 L 540.9 67.7 L 580.9666666666667 338.6 L 590.9666666666667 338.6" isTracker="true" stroke-linejoin="bevel" visibility="visible" stroke-opacity="0.000001" stroke="rgb(192,192,192)" stroke-width="22" style=""></path></g></g><rect rx="3" ry="3" fill="url(#highcharts-5)" x="0.5" y="0.5" width="23" height="19" stroke-width="1" transform="translate(766,10)" zIndex="19" stroke="#B0B0B0"></rect><rect rx="3" ry="3" fill="url(#highcharts-6)" x="0.5" y="0.5" width="23" height="19" stroke-width="1" transform="translate(740,10)" zIndex="19" stroke="#B0B0B0"></rect><path fill="#A8BF77" d="M 5.5 16.5 L 17.5 16.5 17.5 14.5 5.5 14.5 Z M 11.5 14.5 L 15.5 9.5 10.5 9.5 10.5 4.5 12.5 4.5 12.5 9.5 7.5 9.5 Z" transform="translate(766,10)" stroke="#A0A0A0" stroke-width="1" zIndex="20"></path><path fill="#B5C9DF" d="M 5.5 12.5 L 17.5 12.5 17.5 9.5 5.5 9.5 Z M 7.5 9.5 L 7.5 4.5 15.5 4.5 15.5 9.5 Z M 7.5 12.5 L 5.5 16.5 17.5 16.5 15.5 12.5 Z" transform="translate(740,10)" stroke="#A0A0A0" stroke-width="1" zIndex="20"></path><rect rx="0" ry="0" fill="rgb(255,255,255)" x="766" y="10" width="24" height="20" stroke-width="0.000001" id="exportButton" fill-opacity="0.001" title="Export to raster or vector image" zIndex="21" style="cursor:pointer;"><title>Export to raster or vector image</title></rect><rect rx="0" ry="0" fill="rgb(255,255,255)" x="740" y="10" width="24" height="20" stroke-width="0.000001" id="printButton" fill-opacity="0.001" title="Print the chart" zIndex="21" style="cursor:pointer;"><title>Print the chart</title></rect></svg></div></div>
+
+  <div class="content-inner">
+
+    <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
+      <form accept-charset="UTF-8" action="/{{.App}}" method="get"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"></div>
+        <input id="name" name="name" type="hidden" value="hotel">
+        <select id="project_app" name="app"><option value="">App Version - All</option>
+          <option value="1">1</option></select>
+          <select id="project_date" name="date"><option value="">Crash Date - Last two weeks</option>
+            <option value="2013-08-29">2013-08-29</option>
+            <option value="2013-08-28">2013-08-28</option>
+            <option value="2013-08-27">2013-08-27</option>
+            <option value="2013-08-26">2013-08-26</option>
+            <option value="2013-08-25">2013-08-25</option>
+            <option value="2013-08-24">2013-08-24</option>
+            <option value="2013-08-23">2013-08-23</option>
+            <option value="2013-08-22">2013-08-22</option>
+            <option value="2013-08-21">2013-08-21</option>
+            <option value="2013-08-20">2013-08-20</option>
+            <option value="2013-08-19">2013-08-19</option>
+            <option value="2013-08-18">2013-08-18</option>
+            <option value="2013-08-17">2013-08-17</option>
+            <option value="2013-08-16">2013-08-16</option>
+            <option value="2013-08-15">2013-08-15</option></select>
+            <select id="project_ch" name="ch"><option value="">App Channel - All</option>
+              <option value="AppStore">AppStore</option>
+              <option value="ppzhushou-">ppzhushou-</option>
+              <option value="91-jd">91-jd</option></select>
+              <input type="submit" value="Filter">
+            </form>  </div>
+
+            <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
+              <h2>Total: {{.Total}}</h2>
+            </div>
+
+
+            {{range .AllCrashLog}}
+            <div class="crash-feature">
+              <div class="left">
+                <table>
+                  <tbody><tr>
+                    <td class="col1">Type:</td>
+                    <td class="code"><a href="" class="crash-link">{{.Name}}</a></td>
+                  </tr>
+                  <tr>
+                    <td class="col1">Detail:</td>
+                    <td class="code">{{.Description}}</td>
+                  </tr>
+                  <tr>
+                    <td class="col1">&nbsp;
+                    </td>
+                    <td></td>
+                  </tr>
+                </tbody></table>
+              </div>
+              <div class="right">
+                <span>{{.Count}}</span>
+                <div style="text-align:right; margin-top: 20px; margin-right:1px">
+                </div>
+              </div>
+              <div style="clear:both"></div>
+            </div>
+            {{end}}
+
+            <div class="pagination"><span class="previous_page disabled">← Previous</span> <em class="current">1</em> <a rel="next" href="http://192.168.2.231/projects?name=hotel&page=2">2</a> <a class="next_page" rel="next" href="http://192.168.2.231/projects?name=hotel&page=2">Next →</a></div>
+          </div>
+
+        </div>
+
+        <!--<a href="/charts">view charts</a>-->
+
+
+      </body></html>
