@@ -29,71 +29,44 @@
                             <option value="">
                                 App Version - All
                             </option>
-                            <option value="1">
-                                1
-                            </option>
+                            {{range .AllVersion}}
+                            <script type="text/javascript">
+                              if (location.href.indexOf("{{.}}")!=-1){
+                              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+                            }else{
+                              document.write("<option value='{{.}}' >{{.}}</option>")
+                            }
+                            </script>
+                          <!--   <option value="{{.}}">
+                                {{.}}
+                            </option> -->
+                            {{end}}
                         </select> <select id="project_date" name="date">
                             <option value="">
-                                Crash Date - Last two weeks
+                                Crash Date - Last 7 days
                             </option>
-                            <option value="2013-08-29">
-                                2013-08-29
-                            </option>
-                            <option value="2013-08-28">
-                                2013-08-28
-                            </option>
-                            <option value="2013-08-27">
-                                2013-08-27
-                            </option>
-                            <option value="2013-08-26">
-                                2013-08-26
-                            </option>
-                            <option value="2013-08-25">
-                                2013-08-25
-                            </option>
-                            <option value="2013-08-24">
-                                2013-08-24
-                            </option>
-                            <option value="2013-08-23">
-                                2013-08-23
-                            </option>
-                            <option value="2013-08-22">
-                                2013-08-22
-                            </option>
-                            <option value="2013-08-21">
-                                2013-08-21
-                            </option>
-                            <option value="2013-08-20">
-                                2013-08-20
-                            </option>
-                            <option value="2013-08-19">
-                                2013-08-19
-                            </option>
-                            <option value="2013-08-18">
-                                2013-08-18
-                            </option>
-                            <option value="2013-08-17">
-                                2013-08-17
-                            </option>
-                            <option value="2013-08-16">
-                                2013-08-16
-                            </option>
-                            <option value="2013-08-15">
-                                2013-08-15
-                            </option>
+                            {{range .AllDate}}
+                            <script type="text/javascript">
+                              if (location.href.indexOf("{{.}}")!=-1){
+                              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+                            }else{
+                              document.write("<option value='{{.}}' >{{.}}</option>")
+                            }
+                            </script>
+                            {{end}}
                         </select> <select id="project_ch" name="channel">
                             <option value="">
                                 App Channel - All
                             </option>
-                            <option value="AppStore">
-                                AppStore
-                            </option>
-                            <option value="ppzhushou-">
-                                ppzhushou-
-                            </option>
-                            <option value="91-jd">
-                                91-jd
-                            </option>
+                            {{range .AllChannel}}
+                            <script type="text/javascript">
+                              if (location.href.indexOf("{{.}}")!=-1){
+                              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+                            }else{
+                              document.write("<option value='{{.}}' >{{.}}</option>")
+                            }
+                            </script>
+                            {{end}}
                         </select> <input type="submit" value="Filter">
                     </form>
                 </div>
@@ -138,7 +111,6 @@
                     <div style="clear:both"></div>
                 </div>{{end}}
                 <div class="pagination" style="width=800px;word-break:break-all">
-                    <!-- <span class="previous_page disabled">← Previous</span> <em class="current">1</em> <a rel="next" href="http://192.168.2.231/projects?name=hotel&amp;page=2">2</a> <a class="next_page" rel="next" href="http://192.168.2.231/projects?name=hotel&amp;page=2">Next →</a> -->
                     <script type="text/javascript">
                       var cur = {{.CurPage}}
                       var total ={{.TotalPage}}

@@ -24,6 +24,8 @@ const CRASH_PER_PAGE = 20
 //筛选条件
 var app, version, date, channel string
 
+var allVersion, allDate, allChannel string
+
 //crash总数
 var total int
 
@@ -48,13 +50,27 @@ func (this *CrashController) Get() {
 		showPage(this, page)
 		return
 	}
+	crashObj := crash.GetFilteredCrashObj(tapp, tversion, tchannel, tdate)
+	//解析所有可选条件
+	if app != tapp {
+		for _, v := range crashObj {
+			if strings.Index(allVersion, v.App) == -1 {
+				allVersion = allVersion + "\n" + v.App
+			}
+			if strings.Index(allChannel, v.Ch) == -1 {
+				allChannel = allChannel + "\n" + v.Ch
+			}
+			if strings.Index(allDate, v.Date) == -1 {
+				allDate = allDate + "\n" + v.Date
+			}
+		}
+	}
 	//记录下数据
 	app = tapp
 	version = tversion
 	date = tdate
 	channel = tchannel
 
-	crashObj := crash.GetFilteredCrashObj(app, version, channel, date)
 	fmt.Println("crashObj len:", len(crashObj))
 	total = len(crashObj)
 	crashCount := make(map[string]int)
@@ -74,26 +90,27 @@ func (this *CrashController) Get() {
 	crashLog = make([]CrashLog, len(crashCount))
 	index := 0
 	for log, count := range crashCount {
-		maxK := log
-		maxV := count
-		for k, v := range crashCount {
-			if v > maxV {
-				maxK = k
-				maxV = v
+		if strings.Index(log, ":") > 0 {
+			crashLog[index] = CrashLog{log[:strings.Index(log, ":")], log + "...", count}
+		} else {
+			crashLog[index] = CrashLog{log[:50], log + "...", count}
+		}
+		index++
+	}
+	crashLog = crashLog[:index]
+	for i := 0; i < index; i++ {
+		max := i
+		for j := i + 1; j < index; j++ {
+			if crashLog[j].Count > crashLog[max].Count {
+				max = j
 			}
 		}
-		if strings.Index(maxK, ":") > 0 {
-			crashLog[index] = CrashLog{maxK[:strings.Index(maxK, ":")], maxK + "...", maxV}
-		} else {
-			crashLog[index] = CrashLog{maxK[:50], maxK + "...", maxV}
+		if max != i {
+			tmp := crashLog[i]
+			crashLog[i] = crashLog[max]
+			crashLog[max] = tmp
 		}
-		fmt.Println(index)
-		fmt.Println(crashCount)
-		index++
-		delete(crashCount, maxK)
 	}
-	fmt.Println(crashCount)
-	crashLog = crashLog[:index]
 	fmt.Println("crashLog len:", len(crashLog))
 
 	showPage(this, page)
@@ -104,6 +121,9 @@ func showPage(this *CrashController, page int) {
 	this.Data["App"] = app
 	this.Data["Total"] = total
 	this.Data["CurPage"] = page
+	this.Data["AllVersion"] = strings.Split(allVersion, "\n")[1:]
+	this.Data["AllDate"] = strings.Split(allDate, "\n")[1:]
+	this.Data["AllChannel"] = strings.Split(allChannel, "\n")[1:]
 	var totalPage int
 	totalPage = len(crashLog) / CRASH_PER_PAGE
 	if len(crashLog)%CRASH_PER_PAGE != 0 {
