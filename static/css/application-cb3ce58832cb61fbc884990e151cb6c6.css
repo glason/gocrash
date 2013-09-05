@@ -107,12 +107,11 @@ div.crash-feature {
       font-size: 30px; }
 
 td.col1 {
-  width: 130px;
   vertical-align: top; }
 
 td.code {
   font-family: monaco;
-  font-size: 10px; }
+  font-size: 12px; }
 
 div.crash {
   margin-top: 10px;
@@ -186,7 +185,7 @@ div.field, div.actions {
 
 .pagination a, .pagination span {
   line-height: 60px;
-  padding: 8px 10px;
+  padding: 5px 5px;
   margin-right: 5px;
   background-color: #FAFAFA;
   border: 1px solid #E0E0E0;

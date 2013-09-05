@@ -94,12 +94,14 @@ func GetAllJsonObject(date string) error {
 
 	tmp := make([]CrashObj, len(allJson))
 
+	re, _ = regexp.Compile("(\\n+|\\s{2,})")
+
 	for i, v := range allJson {
 		json.Unmarshal(v, &tmp[i])
 
 		for _, v := range tmp[i].Evs {
 			if v.Val.Log != "" {
-				tmp[i].Log = v.Val.Log
+				tmp[i].Log = re.ReplaceAllString(v.Val.Log, " ")
 				break
 			}
 		}

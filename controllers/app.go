@@ -18,6 +18,9 @@ type CrashLog struct {
 	Count       int
 }
 
+//每页crash数目
+const CRASH_PER_PAGE = 20
+
 //筛选条件
 var app, version, date, channel string
 
@@ -37,7 +40,7 @@ func (this *CrashController) Get() {
 	//分页展示，每页10条
 	page, err := strconv.Atoi(tpage)
 	if err != nil {
-		page = 0
+		page = 1
 	}
 	//如果已经解析过数据，则直接使用crashLog中的数据
 	if app == tapp && version == tversion && date == tdate && channel == tchannel {
@@ -66,6 +69,8 @@ func (this *CrashController) Get() {
 		}
 		crashCount[log]++
 	}
+	fmt.Println(crashCount)
+	fmt.Println("crashCount len:", len(crashCount))
 	crashLog = make([]CrashLog, len(crashCount))
 	index := 0
 	for log, count := range crashCount {
@@ -82,9 +87,14 @@ func (this *CrashController) Get() {
 		} else {
 			crashLog[index] = CrashLog{maxK[:50], maxK + "...", maxV}
 		}
+		fmt.Println(index)
+		fmt.Println(crashCount)
 		index++
 		delete(crashCount, maxK)
 	}
+	fmt.Println(crashCount)
+	crashLog = crashLog[:index]
+	fmt.Println("crashLog len:", len(crashLog))
 
 	showPage(this, page)
 }
@@ -93,13 +103,19 @@ func showPage(this *CrashController, page int) {
 	this.TplNames = "crash.html"
 	this.Data["App"] = app
 	this.Data["Total"] = total
-	fmt.Println("show page:", page)
-	if page*10 < len(crashLog) {
-		if page*10+10 < len(crashLog) {
-			this.Data["AllCrashLog"] = crashLog[page*10 : page*10+10]
-			fmt.Println("crashLog[", page*10, ":", page*10+10, "]")
+	this.Data["CurPage"] = page
+	var totalPage int
+	totalPage = len(crashLog) / CRASH_PER_PAGE
+	if len(crashLog)%CRASH_PER_PAGE != 0 {
+		totalPage++
+	}
+	this.Data["TotalPage"] = totalPage
+	this.Data["CurPage"] = page
+	if (page-1)*CRASH_PER_PAGE < len(crashLog) {
+		if (page-1)*CRASH_PER_PAGE+CRASH_PER_PAGE < len(crashLog) {
+			this.Data["AllCrashLog"] = crashLog[(page-1)*CRASH_PER_PAGE : (page-1)*CRASH_PER_PAGE+CRASH_PER_PAGE]
 		} else {
-			this.Data["AllCrashLog"] = crashLog[page*10 : len(crashLog)]
+			this.Data["AllCrashLog"] = crashLog[(page-1)*CRASH_PER_PAGE : len(crashLog)]
 		}
 	}
 }
