@@ -16,32 +16,9 @@
   google.setOnLoadCallback(drawChart);
   function drawChart() {
           //点击筛选
-          function getNewUrl(name,value){
-            var url=window.location.href ;
-            var newUrl="";
-            //去除page参数
-            var regPage = new RegExp("(")
-
-            var reg = new RegExp("(^|)"+ name +"=([^&]*)(|$)");
-            var tmp = name + "=" + value;
-            if(url.match(reg) != null)
-            {
-             newUrl= url.replace(eval(reg),tmp);
-           }
-           else
-           {
-             if(url.match("[\?]"))
-             {
-              newUrl= url + "&" + tmp;
-            }
-            else
-            {
-              newUrl= url + "?" + tmp;
-            }
-          }
-
-
-          location.href=newUrl;
+          function filter(id,option){
+            $("#"+id).val(option)
+            $("form").submit()
         }
             //date
             var data_date = google.visualization.arrayToDataTable([
@@ -61,7 +38,7 @@
               var selectedItem = chart_date.getSelection()[0];
               if (selectedItem) {
                 var topping = data_date.getValue(selectedItem.row, 0);
-                getNewUrl('date',topping)
+                filter('project_date',topping)
 
               }
             }
@@ -85,7 +62,7 @@
               var selectedItem = chart_version.getSelection()[0];
               if (selectedItem) {
                 var topping = data_version.getValue(selectedItem.row, 0);
-                getNewUrl('version',topping)
+                filter('project_app',topping)
 
               }
             }
@@ -109,7 +86,7 @@
               var selectedItem = chart_channel.getSelection()[0];
               if (selectedItem) {
                 var topping = data_channel.getValue(selectedItem.row, 0);
-                getNewUrl('channel',topping)
+                filter('project_ch',topping)
 
               }
             }

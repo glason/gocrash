@@ -56,6 +56,81 @@
 
           var chart_channel = new google.visualization.PieChart(document.getElementById('piechart_channel'));
           chart_channel.draw(data_channel, options_channel);
+          //city
+          var data_city = google.visualization.arrayToDataTable([
+                ['City','Crash']
+                {{range $k,$v := .MapCity}}
+                    ,['{{$k}}',{{$v}}]
+                {{end}}
+              ]);
+
+            var options_city = {
+                title: 'city distribution',
+                sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_city = new google.visualization.PieChart(document.getElementById('piechart_city'));
+          chart_city.draw(data_city, options_city);
+          //device
+          var data_device = google.visualization.arrayToDataTable([
+                ['Device','Crash']
+                {{range $k,$v := .MapDevice}}
+                    ,['{{$k}}',{{$v}}]
+                {{end}}
+              ]);
+
+            var options_device = {
+                title: 'device distribution',
+                sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_device = new google.visualization.PieChart(document.getElementById('piechart_device'));
+          chart_device.draw(data_device, options_device);
+          //screen
+          var data_screen = google.visualization.arrayToDataTable([
+                ['Screen','Crash']
+                {{range $k,$v := .MapScreen}}
+                    ,['{{$k}}',{{$v}}]
+                {{end}}
+              ]);
+
+            var options_screen = {
+                title: 'screen distribution',
+                sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_screen = new google.visualization.PieChart(document.getElementById('piechart_screen'));
+          chart_screen.draw(data_screen, options_screen);
+          //os
+          var data_os = google.visualization.arrayToDataTable([
+                ['OS','Crash']
+                {{range $k,$v := .MapOS}}
+                    ,['{{$k}}',{{$v}}]
+                {{end}}
+              ]);
+
+            var options_os = {
+                title: 'os distribution',
+                sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_os = new google.visualization.PieChart(document.getElementById('piechart_os'));
+          chart_os.draw(data_os, options_os);
+          //net
+          var data_net = google.visualization.arrayToDataTable([
+                ['Net','Crash']
+                {{range $k,$v := .MapNet}}
+                    ,['{{$k}}',{{$v}}]
+                {{end}}
+              ]);
+
+            var options_net = {
+                title: 'net distribution',
+                sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_net = new google.visualization.PieChart(document.getElementById('piechart_net'));
+          chart_net.draw(data_net, options_net);
       }
       </script>
     </head>
@@ -67,16 +142,33 @@
         </div>
         <table style="width:100%;border-bottom:solid 20px black;">
             <tr>
-                <td style="width:30%;">
-                    <div id="piechart_version" style="height: 400px;"></div>
+                <td style="width:25%;">
+                    <div id="piechart_version" style="height: 300px;"></div>
                 </td>
-                <td style="width:40%;">
-                    <div id="chart_div" style="height:400px;"></div>
+                <td style="width:25%;">
+                    <div id="chart_div" style="height:300px;"></div>
                 </td>
-                <td style="width:30%;">
-                    <div id="piechart_channel" style="height: 400px;"></div>
+                <td style="width:25%;">
+                    <div id="piechart_channel" style="height: 300px;"></div>
                 </td>
-            </tr>    
+                <td style="width:25%;">
+                    <div id="piechart_city" style="height:300px;"></div>
+                </td>  
+            </tr>  
+            <tr>
+                <td style="width:25%;">
+                    <div id="piechart_device" style="height:300px;"></div>
+                </td> 
+                <td style="width:25%;">
+                    <div id="piechart_screen" style="height:300px;"></div>
+                </td>  
+                <td style="width:25%;">
+                    <div id="piechart_os" style="height:300px;"></div>
+                </td>  
+                <td style="width:25%;">
+                    <div id="piechart_net" style="height:300px;"></div>
+                </td>  
+            </tr> 
         </table>
         <div class="content white">
             <div class="content-header">
