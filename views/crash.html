@@ -1,137 +1,228 @@
-<!DOCTYPE html>
-<!-- saved from url=(0040)http://192.168.2.231/projects?name=hotel -->
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>
-            android crash analysis
+            Meituan Android Crash Analysis
         </title>
         <meta charset="UTF-8">
         <link href="/static/css/application-cb3ce58832cb61fbc884990e151cb6c6.css" media="all" rel="stylesheet" type="text/css">
+         <!--报表-->
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart"]});
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+            //date
+            var data_date = google.visualization.arrayToDataTable([
+                ['Date','Crash']
+                {{range $k,$v := .MapDate}}
+                    ,['{{$k}}'.substr(5),{{$v}}]
+                {{end}}
+              ]);
+
+            var options_date = {
+                title: 'crash trend',
+                pointSize: '5'
+          };
+
+          var chart_date = new google.visualization.LineChart(document.getElementById('chart_div'));
+          chart_date.draw(data_date, options_date);
+          //version
+          var data_version = google.visualization.arrayToDataTable([
+                ['Version','Crash']
+                {{range $k,$v := .MapVersion}}
+                    ,['{{$k}}',{{$v}}]
+                {{end}}
+              ]);
+
+            var options_version = {
+                title: 'version distribution',
+                sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_version = new google.visualization.PieChart(document.getElementById('piechart_version'));
+          chart_version.draw(data_version, options_version);
+          //channel
+          var data_channel = google.visualization.arrayToDataTable([
+                ['Channel','Crash']
+                {{range $k,$v := .MapChannel}}
+                    ,['{{$k}}',{{$v}}]
+                {{end}}
+              ]);
+
+            var options_channel = {
+                title: 'channel distribution',
+                sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_channel = new google.visualization.PieChart(document.getElementById('piechart_channel'));
+          chart_channel.draw(data_channel, options_channel);
+      }
+      </script>
     </head>
     <body>
         <div class="head">
             <div class="head-inner">
-                <a href="/">all</a> &gt; <span>{{.App}}</span>
+                <a href="/">all</a> &gt; <a href="/{{.Appnm}}">{{.Appnm}}</a> &gt;
             </div>
         </div>
+        <table style="width:100%;border-bottom:solid 20px black;">
+            <tr>
+                <td style="width:30%;">
+                    <div id="piechart_version" style="height: 400px;"></div>
+                </td>
+                <td style="width:40%;">
+                    <div id="chart_div" style="height:400px;"></div>
+                </td>
+                <td style="width:30%;">
+                    <div id="piechart_channel" style="height: 400px;"></div>
+                </td>
+            </tr>    
+        </table>
         <div class="content white">
-            <div id="container" style="min-width: 400px; height: 500px; margin: 0px auto; border-bottom: solid 20px black;">
-                <div class="highcharts-container" id="highcharts-0" style="position: relative; overflow: hidden; width: 800px; height: 500px; text-align: left; line-height: normal; z-index: 0; font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, Arial, Helvetica, sans-serif; font-size: 12px;">
-                    <img width="800px" height="500px" src="/static/img/attack.jpg">
-                </div>
+            <div class="content-header">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="col1">
+                                Type:
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="code">
+                                {{.CrashType}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col1">
+                                detail:
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="code">
+                                {{.CrashDetail}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div class="content-inner">
-                <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
-                    <form accept-charset="UTF-8" action="/{{.App}}" method="get">
-                        <div style="margin:0;padding:0;display:inline"></div>
-                        <select id="project_app" name="version">
-                            <option value="">
-                                App Version - All
-                            </option>
-                            {{range .AllVersion}}
-                            <script type="text/javascript">
-                              if (location.href.indexOf("{{.}}")!=-1){
-                              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
-                            }else{
-                              document.write("<option value='{{.}}' >{{.}}</option>")
-                            }
-                            </script>
-                          <!--   <option value="{{.}}">
-                                {{.}}
-                            </option> -->
-                            {{end}}
-                        </select> <select id="project_date" name="date">
-                            <option value="">
-                                Crash Date - Last 7 days
-                            </option>
-                            {{range .AllDate}}
-                            <script type="text/javascript">
-                              if (location.href.indexOf("{{.}}")!=-1){
-                              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
-                            }else{
-                              document.write("<option value='{{.}}' >{{.}}</option>")
-                            }
-                            </script>
-                            {{end}}
-                        </select> <select id="project_ch" name="channel">
-                            <option value="">
-                                App Channel - All
-                            </option>
-                            {{range .AllChannel}}
-                            <script type="text/javascript">
-                              if (location.href.indexOf("{{.}}")!=-1){
-                              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
-                            }else{
-                              document.write("<option value='{{.}}' >{{.}}</option>")
-                            }
-                            </script>
-                            {{end}}
-                        </select> <input type="submit" value="Filter">
-                    </form>
-                </div>
-                <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
-                    <h2>
-                        Total: {{.Total}}
-                    </h2>
-                </div>{{range .AllCrashLog}}
-                <div class="crash-feature">
-                    <div class="left">
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td class="col1">
-                                        Type:
-                                    </td>
-                                    <td class="code">
-                                        <a href="" class="crash-link">{{.Name}}</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col1">
-                                        Detail:
-                                    </td>
-                                    <td class="code">
-                                        {{.Description}}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col1">
-                                        &nbsp;
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="right">
-                        <span>{{.Count}}</span>
-                        <div style="text-align:right; margin-top: 20px; margin-right:1px"></div>
-                    </div>
-                    <div style="clear:both"></div>
-                </div>{{end}}
-                <div class="pagination" style="width=800px;word-break:break-all">
-                    <script type="text/javascript">
-                      var cur = {{.CurPage}}
-                      var total ={{.TotalPage}}
-                      var url = location.href
-                      if (url.indexOf("page")!=-1){
-                        url=url.replace(/page=\d+/,"page=")
-                      }else if(url.indexOf("?")!=-1){
-                        url=url+"&amp;page="
-                      }else{
-                        url=url+"?page="
-                      }
-                      for (var i=1;i<=total;i++){
-                        if(i==cur){
-                          document.write("<em class='current'>"+i+"</em>")
-                        }else{
-                          document.write("<a href='"+url+i+"'>"+i+"</a>")
-                        }
-                      }
-                    </script>
-                </div>
+                <h2>
+                    Total: {{.Total}}
+                </h2>{{range .CrashObj}}
+                <div class="detail">
+                    <hr/>
+                    <h3>
+                        App
+                    </h3>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td width="160">
+                                    version
+                                </td>
+                                <td>
+                                    {{.App}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="160">
+                                    launch channel:
+                                </td>
+                                <td>
+                                    {{.Ch}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>
+                        Device
+                    </h3>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td width="160">
+                                    did:
+                                </td>
+                                <td>
+                                    {{.Did}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100">
+                                    Device:
+                                </td>
+                                <td>
+                                    {{.Dm}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100">
+                                    Ct:
+                                </td>
+                                <td>
+                                    {{.Ct}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100">
+                                    OS:
+                                </td>
+                                <td>
+                                    {{.Os}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100">
+                                    Screen:
+                                </td>
+                                <td>
+                                    {{.Sc}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100">
+                                    net:
+                                </td>
+                                <td>
+                                    {{.Net}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>
+                        User
+                    </h3>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td width="160">
+                                    uuid:
+                                </td>
+                                <td>
+                                    {{.Uuid}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="160">
+                                    uid:
+                                </td>
+                                <td>
+                                    {{.Uid}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="160">
+                                    city:
+                                </td>
+                                <td>
+                                    {{.City}}
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div><br/>{{end}}<br>
             </div>
-        </div><!--<a href="/charts">view charts</a>-->
+        </div>
     </body>
 </html>

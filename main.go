@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	if err := crash.InitialCrashData(); err != nil {
+	if err := http.InitialCrashData(); err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Println("initial data successful!")
@@ -18,6 +18,7 @@ func init() {
 
 func main() {
 	beego.Router("/", &controllers.MainController{})
-	beego.Router("/:app", &controllers.CrashController{})
+	beego.Router("/crash/:crash", &controllers.CrashController{})
+	beego.Router("/:app", &controllers.AppController{})
 	beego.Run()
 }

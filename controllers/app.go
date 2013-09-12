@@ -4,11 +4,12 @@ import (
 	"crash.android.meituan/models"
 	"fmt"
 	"github.com/astaxie/beego"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-type CrashController struct {
+type AppController struct {
 	beego.Controller
 }
 
@@ -22,9 +23,10 @@ type CrashLog struct {
 const CRASH_PER_PAGE = 20
 
 //筛选条件
-var app, version, date, channel string
+var App, version, date, channel string
 
 var allVersion, allDate, allChannel string
+var mapVersion, mapDate, mapChannel map[string]int
 
 //crash总数
 var total int
@@ -32,7 +34,10 @@ var total int
 //解析的所有crash log
 var crashLog []CrashLog
 
-func (this *CrashController) Get() {
+//log对应的crash obj
+var CrashCount map[string][]http.CrashObj
+
+func (this *AppController) Get() {
 
 	tapp := this.Ctx.Params[":app"]
 	tversion := this.GetString("version")
@@ -45,35 +50,50 @@ func (this *CrashController) Get() {
 		page = 1
 	}
 	//如果已经解析过数据，则直接使用crashLog中的数据
-	if app == tapp && version == tversion && date == tdate && channel == tchannel {
+	if App == tapp && version == tversion && date == tdate && channel == tchannel {
 		fmt.Println("use old data...")
 		showPage(this, page)
 		return
 	}
-	crashObj := crash.GetFilteredCrashObj(tapp, tversion, tchannel, tdate)
+	crashObj, tmapVersion, tmapChannel, tmapDate := http.GetFilteredCrashObj(tapp, tversion, tchannel, tdate)
+	mapVersion = tmapVersion
+	mapChannel = tmapChannel
+	mapDate = tmapDate
 	//解析所有可选条件
-	if app != tapp {
-		for _, v := range crashObj {
-			if strings.Index(allVersion, v.App) == -1 {
-				allVersion = allVersion + "\n" + v.App
-			}
-			if strings.Index(allChannel, v.Ch) == -1 {
-				allChannel = allChannel + "\n" + v.Ch
-			}
-			if strings.Index(allDate, v.Date) == -1 {
-				allDate = allDate + "\n" + v.Date
-			}
+	if App != tapp {
+		allVersion = ""
+		allChannel = ""
+		allDate = ""
+		for k, _ := range mapVersion {
+			allVersion = allVersion + "\n" + k
 		}
+		for k, _ := range mapChannel {
+			allChannel = allChannel + "\n" + k
+		}
+		for k, _ := range mapDate {
+			allDate = allDate + "\n" + k
+		}
+		//for _, v := range crashObj {
+		//	if strings.Index(allVersion, v.App) == -1 {
+		//		allVersion = allVersion + "\n" + v.App
+		//	}
+		//	if strings.Index(allChannel, v.Ch) == -1 {
+		//		allChannel = allChannel + "\n" + v.Ch
+		//	}
+		//	if strings.Index(allDate, v.Date) == -1 {
+		//		allDate = allDate + "\n" + v.Date
+		//	}
+		//}
 	}
 	//记录下数据
-	app = tapp
+	App = tapp
 	version = tversion
 	date = tdate
 	channel = tchannel
 
 	fmt.Println("crashObj len:", len(crashObj))
 	total = len(crashObj)
-	crashCount := make(map[string]int)
+	CrashCount = make(map[string][]http.CrashObj)
 
 	for _, v := range crashObj {
 		var log string
@@ -83,17 +103,16 @@ func (this *CrashController) Get() {
 		} else {
 			log = v.Log
 		}
-		crashCount[log]++
+		CrashCount[log] = append(CrashCount[log], v)
 	}
-	fmt.Println(crashCount)
-	fmt.Println("crashCount len:", len(crashCount))
-	crashLog = make([]CrashLog, len(crashCount))
+	fmt.Println("CrashCount len:", len(CrashCount))
+	crashLog = make([]CrashLog, len(CrashCount))
 	index := 0
-	for log, count := range crashCount {
+	for log, count := range CrashCount {
 		if strings.Index(log, ":") > 0 {
-			crashLog[index] = CrashLog{log[:strings.Index(log, ":")], log + "...", count}
+			crashLog[index] = CrashLog{log[:strings.Index(log, ":")], log, len(count)}
 		} else {
-			crashLog[index] = CrashLog{log[:50], log + "...", count}
+			crashLog[index] = CrashLog{log[:50], log, len(count)}
 		}
 		index++
 	}
@@ -116,14 +135,27 @@ func (this *CrashController) Get() {
 	showPage(this, page)
 }
 
-func showPage(this *CrashController, page int) {
-	this.TplNames = "crash.html"
-	this.Data["App"] = app
+func showPage(this *AppController, page int) {
+	this.TplNames = "app.html"
+	this.Data["App"] = App
 	this.Data["Total"] = total
 	this.Data["CurPage"] = page
-	this.Data["AllVersion"] = strings.Split(allVersion, "\n")[1:]
-	this.Data["AllDate"] = strings.Split(allDate, "\n")[1:]
-	this.Data["AllChannel"] = strings.Split(allChannel, "\n")[1:]
+
+	tmp := strings.Split(allVersion, "\n")[1:]
+	sort.Strings(tmp)
+	this.Data["AllVersion"] = tmp
+	this.Data["MapVersion"] = mapVersion
+
+	tmp = strings.Split(allDate, "\n")[1:]
+	sort.Strings(tmp)
+	this.Data["AllDate"] = tmp
+	this.Data["MapDate"] = mapDate
+
+	tmp = strings.Split(allChannel, "\n")[1:]
+	sort.Strings(tmp)
+	this.Data["AllChannel"] = tmp
+	this.Data["MapChannel"] = mapChannel
+
 	var totalPage int
 	totalPage = len(crashLog) / CRASH_PER_PAGE
 	if len(crashLog)%CRASH_PER_PAGE != 0 {

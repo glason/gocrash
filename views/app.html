@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)http://192.168.2.231/projects?name=hotel -->
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>
+    android crash analysis
+  </title>
+  <meta charset="UTF-8">
+  <link href="/static/css/application-cb3ce58832cb61fbc884990e151cb6c6.css" media="all" rel="stylesheet" type="text/css">
+  <!--报表-->
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.0/jquery.min.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart"]});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+          //点击筛选
+          function getNewUrl(name,value){
+            var url=window.location.href ;
+            var newUrl="";
+            //去除page参数
+            var regPage = new RegExp("(")
+
+            var reg = new RegExp("(^|)"+ name +"=([^&]*)(|$)");
+            var tmp = name + "=" + value;
+            if(url.match(reg) != null)
+            {
+             newUrl= url.replace(eval(reg),tmp);
+           }
+           else
+           {
+             if(url.match("[\?]"))
+             {
+              newUrl= url + "&" + tmp;
+            }
+            else
+            {
+              newUrl= url + "?" + tmp;
+            }
+          }
+
+
+          location.href=newUrl;
+        }
+            //date
+            var data_date = google.visualization.arrayToDataTable([
+              ['Date','Crash']
+              {{range $k,$v := .MapDate}}
+              ,['{{$k}}',{{$v}}]
+              {{end}}
+              ]);
+
+            var options_date = {
+              title: 'crash trend',
+              pointSize: '5'
+            };
+
+            var chart_date = new google.visualization.LineChart(document.getElementById('chart_div'));
+            function dateSelectHandler() {
+              var selectedItem = chart_date.getSelection()[0];
+              if (selectedItem) {
+                var topping = data_date.getValue(selectedItem.row, 0);
+                getNewUrl('date',topping)
+
+              }
+            }
+            google.visualization.events.addListener(chart_date, 'select', dateSelectHandler);  
+            chart_date.draw(data_date, options_date);
+          //version
+          var data_version = google.visualization.arrayToDataTable([
+            ['Version','Crash']
+            {{range $k,$v := .MapVersion}}
+            ,['{{$k}}',{{$v}}]
+            {{end}}
+            ]);
+
+          var options_version = {
+            title: 'version distribution',
+            sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_version = new google.visualization.PieChart(document.getElementById('piechart_version'));
+          function versionSelectHandler() {
+              var selectedItem = chart_version.getSelection()[0];
+              if (selectedItem) {
+                var topping = data_version.getValue(selectedItem.row, 0);
+                getNewUrl('version',topping)
+
+              }
+            }
+            google.visualization.events.addListener(chart_version, 'select', versionSelectHandler);  
+          chart_version.draw(data_version, options_version);
+          //channel
+          var data_channel = google.visualization.arrayToDataTable([
+            ['Channel','Crash']
+            {{range $k,$v := .MapChannel}}
+            ,['{{$k}}',{{$v}}]
+            {{end}}
+            ]);
+
+          var options_channel = {
+            title: 'channel distribution',
+            sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_channel = new google.visualization.PieChart(document.getElementById('piechart_channel'));
+          function channelSelectHandler() {
+              var selectedItem = chart_channel.getSelection()[0];
+              if (selectedItem) {
+                var topping = data_channel.getValue(selectedItem.row, 0);
+                getNewUrl('channel',topping)
+
+              }
+            }
+          google.visualization.events.addListener(chart_channel, 'select', channelSelectHandler);  
+          chart_channel.draw(data_channel, options_channel);
+        }
+        </script>
+      </head>
+      <body>
+        <div class="head">
+          <div class="head-inner">
+            <a href="/">all</a> &gt; <span>{{.App}}</span>
+          </div>
+        </div>
+        <table style="width:100%;border-bottom:solid 20px black;">
+          <tr>
+            <td style="width:30%;">
+              <div id="piechart_version" style="height: 400px;"></div>
+            </td>
+            <td style="width:40%;">
+              <div id="chart_div" style="height:400px;"></div>
+            </td>
+            <td style="width:30%;">
+              <div id="piechart_channel" style="height: 400px;"></div>
+            </td>
+          </tr>    
+        </table>
+<!--         <div id="chart_div" style="width:33.3%;height: 400px;border-bottom: solid 20px black;float:left;"></div>
+  <img src="/static/img/attack.jpg" style="width:33.3%;height: 400px;border-bottom: solid 20px black;float:left;"/> -->
+  <div class="content white">
+    <div class="content-inner">
+      <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
+        <form accept-charset="UTF-8" action="/{{.App}}" method="get">
+          <div style="margin:0;padding:0;display:inline"></div>
+          <select id="project_app" name="version">
+            <option value="">
+              App Version - All
+            </option>
+            {{range .AllVersion}}
+            <script type="text/javascript">
+            if (location.href.indexOf("{{.}}")!=-1){
+              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+            }else{
+              document.write("<option value='{{.}}' >{{.}}</option>")
+            }
+            </script>
+                          <!--   <option value="{{.}}">
+                                {{.}}
+                              </option> -->
+                              {{end}}
+                            </select> <select id="project_date" name="date">
+                            <option value="">
+                              Crash Date - Last 7 days
+                            </option>
+                            {{range .AllDate}}
+                            <script type="text/javascript">
+                            if (location.href.indexOf("{{.}}")!=-1){
+                              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+                            }else{
+                              document.write("<option value='{{.}}' >{{.}}</option>")
+                            }
+                            </script>
+                            {{end}}
+                          </select> <select id="project_ch" name="channel">
+                          <option value="">
+                            App Channel - All
+                          </option>
+                          {{range .AllChannel}}
+                          <script type="text/javascript">
+                          if (location.href.indexOf("{{.}}")!=-1){
+                            document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+                          }else{
+                            document.write("<option value='{{.}}' >{{.}}</option>")
+                          }
+                          </script>
+                          {{end}}
+                        </select> <input type="submit" value="Filter">
+                      </form>
+                    </div>
+                    <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
+                      <h2>
+                        Total: {{.Total}}
+                      </h2>
+                    </div>{{range .AllCrashLog}}
+                    <div class="crash-feature">
+                      <div class="left">
+                        <table>
+                          <tbody>
+                            <tr>
+                              <td class="col1">
+                                Type:
+                              </td>
+                              <td class="code">
+                                {{.Name}}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="col1">
+                                Detail:
+                              </td>
+                              <td class="code">
+                                <a href="/crash/{{.Description}}" class="crash-link">{{.Description}}...</a>
+
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="col1">
+                                &nbsp;
+                              </td>
+                              <td></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="right">
+                        <span>{{.Count}}</span>
+                        <div style="text-align:right; margin-top: 20px; margin-right:1px"></div>
+                      </div>
+                      <div style="clear:both"></div>
+                    </div>{{end}}
+                    <div class="pagination" style="width=800px;word-break:break-all">
+                      <script type="text/javascript">
+                      var cur = {{.CurPage}}
+                      var total ={{.TotalPage}}
+                      var url = location.href
+                      if (url.indexOf("page")!=-1){
+                        url=url.replace(/page=\d+/,"page=")
+                      }else if(url.indexOf("?")!=-1){
+                        url=url+"&amp;page="
+                      }else{
+                        url=url+"?page="
+                      }
+                      for (var i=1;i<=total;i++){
+                        if(i==cur){
+                          document.write("<em class='current'>"+i+"<\/em>")
+                        }else if(i<=3||total-i<=3||Math.abs(i-cur)<=3){
+                          document.write("<a href='"+url+i+"'>"+i+"<\/a>")
+                        }else if(Math.abs(i-cur)==4){
+                          document.write("<em class='current'>...<\/em>")
+                        }
+                      }
+                      </script>
+                    </div>
+                  </div>
+                </div><!--<a href="/charts">view charts</a>-->
+              </body>
+              </html>
