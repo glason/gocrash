@@ -89,8 +89,16 @@ func InitialCrashData() error {
 //解析崩溃object
 func GetAllJsonObject(date string) error {
 	url := CRASH_URL + "crash-android-" + date + ".json"
-	resp, err := http.Get(url)
-	if err != nil {
+	//最多尝试3次
+	var resp *http.Response
+	var err error
+	for i := 0; i < 3; i++ {
+		resp, err = http.Get(url)
+		if err == nil {
+			break
+		}
+	}
+	if resp == nil {
 		return err
 	}
 	defer resp.Body.Close()

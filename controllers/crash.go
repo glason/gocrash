@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"crash.android.meituan/models"
 	"github.com/astaxie/beego"
 	//"net/url"
 	"strconv"
@@ -13,14 +14,23 @@ type CrashController struct {
 
 func (this *CrashController) Get() {
 	this.TplNames = "crash.html"
-	this.Data["Appnm"] = App
+	this.Data["Appnm"], _ = this.GetSession("app").(string)
 
-	crash := this.Ctx.Params[":crash"]
-	index, err := strconv.Atoi(crash)
+	crashID := this.Ctx.Params[":crash"]
+	index, err := strconv.Atoi(crashID)
 	if err != nil {
 		return
 	}
-	crashObj := getCrashByIndex(index)
+	var crashObj []http.CrashObj
+	crashLog, _ := this.GetSession("crashLog").([]CrashLog)
+	crashCount, _ := this.GetSession("crashCount").(map[string][]http.CrashObj)
+	page, _ := this.GetSession("page").(int)
+
+	i := index + (page-1)*CRASH_PER_PAGE
+	if i < len(crashLog) {
+		log := crashLog[i].Description
+		crashObj = crashCount[log]
+	}
 	if crashObj == nil {
 		return
 	}
@@ -60,4 +70,5 @@ func (this *CrashController) Get() {
 	this.Data["MapScreen"] = mapScreen
 	this.Data["MapOS"] = mapOS
 	this.Data["MapNet"] = mapNet
+
 }

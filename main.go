@@ -13,7 +13,7 @@ func init() {
 		initialData()
 		for true {
 			t := time.Now()
-			n := time.Date(t.Year(), t.Month(), t.Day()+1, 0, 0, 0, 0, t.Location())
+			n := time.Date(t.Year(), t.Month(), t.Day()+1, 6, 0, 0, 0, t.Location())
 			duration := time.Duration(n.Unix()-t.Unix()) * time.Second
 			fmt.Println("duration:", duration)
 			<-time.After(duration)
