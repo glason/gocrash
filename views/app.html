@@ -21,10 +21,18 @@
             $("form").submit()
         }
             //date
-            var data_date = google.visualization.arrayToDataTable([
-              ['Date','Crash']
+            // var data_date = google.visualization.arrayToDataTable([
+            //   ['Date','Crash']
+            //   {{range $k,$v := .MapDate}}
+            //   ,['{{$k}}',{{$v}}]
+            //   {{end}}
+            //   ]);
+            var data_date = new google.visualization.DataTable();
+            data_date.addColumn('string','Date')
+            data_date.addColumn('number','Crash')
+            data_date.addRows([
               {{range $k,$v := .MapDate}}
-              ,['{{$k}}',{{$v}}]
+              ['{{$k}}',{{$v}}],
               {{end}}
               ]);
 
@@ -92,27 +100,56 @@
             }
           google.visualization.events.addListener(chart_channel, 'select', channelSelectHandler);  
           chart_channel.draw(data_channel, options_channel);
+          //type
+          var data_type = google.visualization.arrayToDataTable([
+            ['Type','Crash']
+            {{range $k,$v := .MapType}}
+            ,['{{$k}}',{{$v}}]
+            {{end}}
+            ]);
+
+          var options_type = {
+            title: 'crash type distribution',
+            sliceVisibilityThreshold: '0.02'
+          };
+
+          var chart_type = new google.visualization.PieChart(document.getElementById('piechart_type'));
+          function typeSelectHandler() {
+              var selectedItem = chart_type.getSelection()[0];
+              if (selectedItem) {
+                var topping = data_type.getValue(selectedItem.row, 0);
+                filter('project_type',topping)
+
+              }
+            }
+          google.visualization.events.addListener(chart_type, 'select', typeSelectHandler);  
+          chart_type.draw(data_type, options_type);
         }
         </script>
       </head>
       <body>
         <div class="head">
           <div class="head-inner">
-            <a href="/">all</a> &gt; <span>{{.App}}</span>
+            <a href="/">all</a> &gt; <a href="/{{.App}}">{{.App}}</a>
           </div>
         </div>
         <table style="width:100%;border-bottom:solid 20px black;">
           <tr>
-            <td style="width:30%;">
-              <div id="piechart_version" style="height: 400px;"></div>
+            <td style="width:50%;">
+              <div id="chart_div" style="height:300px;"></div>
             </td>
-            <td style="width:40%;">
-              <div id="chart_div" style="height:400px;"></div>
+            <td style="width:50%;">
+              <div id="piechart_type" style="height: 300px;"></div>
             </td>
-            <td style="width:30%;">
-              <div id="piechart_channel" style="height: 400px;"></div>
+          </tr> 
+          <tr>
+            <td style="width:50%;">
+              <div id="piechart_version" style="height: 300px;"></div>
             </td>
-          </tr>    
+            <td style="width:50%;">
+              <div id="piechart_channel" style="height: 300px;"></div>
+            </td>
+          </tr>   
         </table>
 <!--         <div id="chart_div" style="width:33.3%;height: 400px;border-bottom: solid 20px black;float:left;"></div>
   <img src="/static/img/attack.jpg" style="width:33.3%;height: 400px;border-bottom: solid 20px black;float:left;"/> -->
@@ -163,14 +200,29 @@
                           }
                           </script>
                           {{end}}
-                        </select> <input type="submit" value="Filter">
+                        </select><br/>
+                        search crash:
+                        <script type="text/javascript">
+                          var url = location.href;
+                          var reg = new RegExp("type=[^&]*");
+                          var search = url.match(reg);
+                          if (search !=null){
+                            value = search[0].substr(5);
+                            document.write("<input id='project_type' type='text' name='type' value='"+value+"'/>");
+                          }else{
+                            document.write("<input id='project_type' type='text' name='type'/>");
+                          }
+                        </script>
+                        <!-- <input id="project_type" type="text" name="type" value="haha"/> -->
+                         <input type="submit" value="Filter"/>
                       </form>
                     </div>
                     <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
                       <h2>
                         Total: {{.Total}}
                       </h2>
-                    </div>{{range .AllCrashLog}}
+                    </div>
+                    {{range $i,$_ := .AllCrashLog}}
                     <div class="crash-feature">
                       <div class="left">
                         <table>
@@ -185,10 +237,10 @@
                             </tr>
                             <tr>
                               <td class="col1">
-                                Detail:
+                                Description:
                               </td>
                               <td class="code">
-                                <a href="/crash/{{.Description}}" class="crash-link">{{.Description}}...</a>
+                                <a href="/crash/{{$i}}" class="crash-link">{{.Description}}...</a>
 
                               </td>
                             </tr>

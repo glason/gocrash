@@ -12,11 +12,13 @@
         google.setOnLoadCallback(drawChart);
         function drawChart() {
             //date
-            var data_date = google.visualization.arrayToDataTable([
-                ['Date','Crash']
-                {{range $k,$v := .MapDate}}
-                    ,['{{$k}}'.substr(5),{{$v}}]
-                {{end}}
+            var data_date = new google.visualization.DataTable();
+            data_date.addColumn('string','Date')
+            data_date.addColumn('number','Crash')
+            data_date.addRows([
+              {{range $k,$v := .MapDate}}
+              ['{{$k}}'.substr(5),{{$v}}],
+              {{end}}
               ]);
 
             var options_date = {

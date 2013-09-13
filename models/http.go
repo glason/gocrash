@@ -38,7 +38,11 @@ type CrashEvsVal struct {
 	Log string
 }
 
+//crash服务器
 const CRASH_URL = "http://10.64.11.188:8080/crash/"
+
+//获取近7天的数据
+const CRASH_DAYS = 7
 
 var AllCrashObj []CrashObj
 var crashDate string
@@ -49,64 +53,41 @@ func init() {
 
 //在服务器http://10.64.11.188:8080/crash/上解析所有崩溃日志文件
 func InitialCrashData() error {
-	fmt.Println("get all crash data url...")
-	//resp, err := http.Get(CRASH_URL)
-	//if err != nil {
-	//	return err
-	//}
-	//defer resp.Body.Close()
-
-	//body, err := ioutil.ReadAll(resp.Body)
-	//if err != nil {
-	//	return err
-	//}
-	//src := string(body)
-
-	////去除所有尖括号内的HTML代码，并换成换行符
-	//re, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
-	//src = re.ReplaceAllString(src, "")
-
-	//re, _ = regexp.Compile("crash(\\d||-)*\\.json")
-	//allJson := re.FindAllString(src, -1)
-
-	//for _, v := range allJson {
-	//	fmt.Println("get all crash obj in " + v)
-	//}
-
 	t := time.Now()
-	for i := 1; i <= 7; i++ {
+	for i := 1; i <= CRASH_DAYS; i++ {
 		t = t.AddDate(0, 0, -1)
 		y, m, d := t.Date()
 		date := fmt.Sprintf("%.4d-%.2d-%.2d", y, m, d)
-		fmt.Println("date:", date)
 		if !strings.Contains(crashDate, date) {
+			fmt.Println("******getting data on ", date, " ********")
 			crashDate = crashDate + date + "\n"
 			if err := GetAllJsonObject(date); err != nil {
 				fmt.Println(err)
 			}
 		}
 	}
+	//往前第八天的数据删除
 	t = t.AddDate(0, 0, -1)
 	y, m, d := t.Date()
 	date := fmt.Sprintf("%.4d-%.2d-%.2d", y, m, d)
 	if strings.Contains(crashDate, date) {
 		crashDate = strings.Replace(crashDate, date+"\n", "", 1)
-		for k, v := range AllCrashObj {
-			if v.Date == date {
-				AllCrashObj = append(AllCrashObj[:k], AllCrashObj[k+1:]...)
+		tmpCrashObj := make([]CrashObj, len(AllCrashObj))
+		var index int
+		for _, v := range AllCrashObj {
+			if v.Date != date {
+				//AllCrashObj = append(AllCrashObj[:k], AllCrashObj[k+1:]...)
+				tmpCrashObj[index] = v
+				index += 1
 			}
 		}
+		AllCrashObj = tmpCrashObj[:index]
 	}
-
-	//if err := GetAllJsonObject("2013-08-29"); err != nil {
-	//	fmt.Println(err)
-	//}
 	return nil
 }
 
 //解析崩溃object
 func GetAllJsonObject(date string) error {
-	fmt.Println("getting all json in " + date + "...")
 	url := CRASH_URL + "crash-android-" + date + ".json"
 	resp, err := http.Get(url)
 	if err != nil {
@@ -140,7 +121,7 @@ func GetAllJsonObject(date string) error {
 	return nil
 }
 
-func GetFilteredCrashObj(app, version, channel, date string) ([]CrashObj, map[string]int, map[string]int, map[string]int) {
+func GetFilteredCrashObj(app, version, channel, date, crashType string) ([]CrashObj, map[string]int, map[string]int, map[string]int) {
 	result := make([]CrashObj, 0)
 	tmp := make([]CrashObj, 100)
 	index := 0
@@ -149,7 +130,7 @@ func GetFilteredCrashObj(app, version, channel, date string) ([]CrashObj, map[st
 	mapChannel := make(map[string]int)
 	mapDate := make(map[string]int)
 	for _, v := range AllCrashObj {
-		if (app == "" || app == v.Appnm) && (version == "" || version == v.App) && (channel == "" || channel == v.Ch) && (date == "" || date == v.Date) {
+		if (app == "" || app == v.Appnm) && (version == "" || version == v.App) && (channel == "" || channel == v.Ch) && (date == "" || date == v.Date) && (crashType == "" || strings.Contains(v.Log, crashType)) {
 			tmp[index] = v
 			index++
 			if index >= 100 {
@@ -162,7 +143,6 @@ func GetFilteredCrashObj(app, version, channel, date string) ([]CrashObj, map[st
 		}
 	}
 	if index < 100 {
-		fmt.Println("append")
 		result = append(result, tmp[:index]...)
 	}
 	return result, mapVersion, mapChannel, mapDate

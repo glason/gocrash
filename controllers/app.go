@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"crash.android.meituan/models"
-	"fmt"
 	"github.com/astaxie/beego"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -23,19 +23,20 @@ type CrashLog struct {
 const CRASH_PER_PAGE = 20
 
 //筛选条件
-var App, version, date, channel string
+var App, version, date, channel, crashType string
 
 var allVersion, allDate, allChannel string
-var mapVersion, mapDate, mapChannel map[string]int
+var mapVersion, mapDate, mapChannel, mapType map[string]int
 
 //crash总数
 var total int
+var cur_page int
 
 //解析的所有crash log
 var crashLog []CrashLog
 
 //log对应的crash obj
-var CrashCount map[string][]http.CrashObj
+var crashCount map[string][]http.CrashObj
 
 func (this *AppController) Get() {
 
@@ -44,18 +45,18 @@ func (this *AppController) Get() {
 	tdate := this.GetString("date")
 	tchannel := this.GetString("channel")
 	tpage := this.GetString("page")
+	tcrashType := this.GetString("type")
 	//分页展示，每页10条
 	page, err := strconv.Atoi(tpage)
 	if err != nil {
 		page = 1
 	}
 	//如果已经解析过数据，则直接使用crashLog中的数据
-	if App == tapp && version == tversion && date == tdate && channel == tchannel {
-		fmt.Println("use old data...")
+	if App == tapp && version == tversion && date == tdate && channel == tchannel && crashType == tcrashType {
 		showPage(this, page)
 		return
 	}
-	crashObj, tmapVersion, tmapChannel, tmapDate := http.GetFilteredCrashObj(tapp, tversion, tchannel, tdate)
+	crashObj, tmapVersion, tmapChannel, tmapDate := http.GetFilteredCrashObj(tapp, tversion, tchannel, tdate, tcrashType)
 	mapVersion = tmapVersion
 	mapChannel = tmapChannel
 	mapDate = tmapDate
@@ -73,27 +74,16 @@ func (this *AppController) Get() {
 		for k, _ := range mapDate {
 			allDate = allDate + "\n" + k
 		}
-		//for _, v := range crashObj {
-		//	if strings.Index(allVersion, v.App) == -1 {
-		//		allVersion = allVersion + "\n" + v.App
-		//	}
-		//	if strings.Index(allChannel, v.Ch) == -1 {
-		//		allChannel = allChannel + "\n" + v.Ch
-		//	}
-		//	if strings.Index(allDate, v.Date) == -1 {
-		//		allDate = allDate + "\n" + v.Date
-		//	}
-		//}
 	}
 	//记录下数据
 	App = tapp
 	version = tversion
 	date = tdate
 	channel = tchannel
+	crashType = tcrashType
 
-	fmt.Println("crashObj len:", len(crashObj))
 	total = len(crashObj)
-	CrashCount = make(map[string][]http.CrashObj)
+	crashCount = make(map[string][]http.CrashObj)
 
 	for _, v := range crashObj {
 		var log string
@@ -103,17 +93,19 @@ func (this *AppController) Get() {
 		} else {
 			log = v.Log
 		}
-		CrashCount[log] = append(CrashCount[log], v)
+		crashCount[log] = append(crashCount[log], v)
 	}
-	fmt.Println("CrashCount len:", len(CrashCount))
-	crashLog = make([]CrashLog, len(CrashCount))
+	crashLog = make([]CrashLog, len(crashCount))
 	index := 0
-	for log, count := range CrashCount {
-		if strings.Index(log, ":") > 0 {
-			crashLog[index] = CrashLog{log[:strings.Index(log, ":")], log, len(count)}
-		} else {
-			crashLog[index] = CrashLog{log[:50], log, len(count)}
+	mapType = make(map[string]int)
+	re, _ := regexp.Compile("^\\w+\\.\\w+\\.\\w+")
+	for log, count := range crashCount {
+		name := re.FindString(log)
+		if name == "" {
+			name = log[:50]
 		}
+		crashLog[index] = CrashLog{name, log, len(count)}
+		mapType[name] += 1
 		index++
 	}
 	crashLog = crashLog[:index]
@@ -130,16 +122,25 @@ func (this *AppController) Get() {
 			crashLog[max] = tmp
 		}
 	}
-	fmt.Println("crashLog len:", len(crashLog))
 
 	showPage(this, page)
 }
 
+func getCrashByIndex(index int) []http.CrashObj {
+	i := index + (cur_page-1)*CRASH_PER_PAGE
+	if i < len(crashLog) {
+		log := crashLog[i].Description
+		return crashCount[log]
+	} else {
+		return nil
+	}
+}
+
 func showPage(this *AppController, page int) {
+	cur_page = page
 	this.TplNames = "app.html"
 	this.Data["App"] = App
 	this.Data["Total"] = total
-	this.Data["CurPage"] = page
 
 	tmp := strings.Split(allVersion, "\n")[1:]
 	sort.Strings(tmp)
@@ -155,6 +156,8 @@ func showPage(this *AppController, page int) {
 	sort.Strings(tmp)
 	this.Data["AllChannel"] = tmp
 	this.Data["MapChannel"] = mapChannel
+
+	this.Data["MapType"] = mapType
 
 	var totalPage int
 	totalPage = len(crashLog) / CRASH_PER_PAGE

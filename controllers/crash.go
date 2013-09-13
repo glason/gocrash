@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"net/url"
+	//"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -14,9 +15,15 @@ func (this *CrashController) Get() {
 	this.TplNames = "crash.html"
 	this.Data["Appnm"] = App
 
-	crash, _ := url.QueryUnescape(this.Ctx.Params[":crash"])
-
-	crashObj := CrashCount[crash]
+	crash := this.Ctx.Params[":crash"]
+	index, err := strconv.Atoi(crash)
+	if err != nil {
+		return
+	}
+	crashObj := getCrashByIndex(index)
+	if crashObj == nil {
+		return
+	}
 	this.Data["Total"] = len(crashObj)
 	this.Data["CrashObj"] = crashObj
 	if len(crashObj) >= 1 {
