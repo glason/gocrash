@@ -43,29 +43,32 @@ type CrashEvsVal struct {
 }
 
 /*
-CREATE TABLE `test`.`dbcrash` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `uid` VARCHAR(100) NULL,
-  `app` VARCHAR(100) NULL,
-  `os` VARCHAR(100) NULL,
-  `appnm` VARCHAR(100) NULL,
-  `sc` VARCHAR(100) NULL,
-  `did` VARCHAR(100) NULL,
-  `net` VARCHAR(100) NULL,
-  `ct` VARCHAR(100) NULL,
-  `city` VARCHAR(100) NULL,
-  `dm` VARCHAR(100) NULL,
-  `uuid` VARCHAR(100) NULL,
-  `ch` VARCHAR(100) NULL,
-  `log` TEXT NULL,
-  `md5` VARCHAR(100) NULL,
-  `date` VARCHAR(100) NULL,
-  PRIMARY KEY (`id`));
+CREATE TABLE `dbcrash` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` varchar(100) DEFAULT NULL,
+  `app` varchar(100) DEFAULT NULL,
+  `os` varchar(100) DEFAULT NULL,
+  `appnm` varchar(100) DEFAULT NULL,
+  `sc` varchar(100) DEFAULT NULL,
+  `did` varchar(100) DEFAULT NULL,
+  `net` varchar(100) DEFAULT NULL,
+  `ct` varchar(100) DEFAULT NULL,
+  `city` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `dm` varchar(100) DEFAULT NULL,
+  `uuid` varchar(100) DEFAULT NULL,
+  `ch` varchar(100) DEFAULT NULL,
+  `log` text,
+  `md5` varchar(100) DEFAULT NULL,
+  `date` varchar(100) DEFAULT NULL,
+  `crashtype` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ;
+
 */
 
 //数据库存储crash结构
 type Dbcrash struct {
-	Id        int `beedb:"PK"`
+	Id        int `beedb:"PK"` //it is important to set PK
 	Uid       string
 	App       string
 	Os        string
@@ -87,10 +90,15 @@ type Dbcrash struct {
 //crash服务器
 const CRASH_URL = "http://10.64.11.188:8080/crash/"
 
-//获取近7天的数据
-const CRASH_DAYS = 2
+var CRASH_URL_TODAY = []string{"http://10.64.12.213:8080/logs/clientCrash.json", "http://10.64.13.226:8080/logs/clientCrash.json",
+	"http://10.64.11.188:8080/logs/clientCrash.json", "http://10.64.11.187:8080/logs/clientCrash.json"}
 
-var crashDate string
+//const CRASH_URL = "http://127.0.0.1:8000/"
+
+//获取近6天的数据
+const CRASH_DAYS = 6
+
+var UpdateTime time.Time
 var orm beedb.Model
 
 func init() {
@@ -103,36 +111,45 @@ func init() {
 
 //在服务器http://10.64.11.188:8080/crash/上解析所有崩溃日志文件
 func InitialCrashData() error {
-	return nil
+	//GetAllJsonObject("2013-08-29")
+	//return nil
+	orm.SetTable("dbcrash").DeleteRow()
 	t := time.Now()
 	for i := 1; i <= CRASH_DAYS; i++ {
 		t = t.AddDate(0, 0, -1)
-		y, m, d := t.Date()
-		date := fmt.Sprintf("%.4d-%.2d-%.2d", y, m, d)
-		if !strings.Contains(crashDate, date) {
-			crashDate = crashDate + date + "\n"
-			if err := GetAllJsonObject(date); err != nil {
-				fmt.Println("******getting data on ", date, " failed********")
-				fmt.Println(err)
-			} else {
-				fmt.Println("******getting data on ", date, " successful********")
-			}
+		date := getDateString(t)
+
+		if err := GetAllJsonObject(CRASH_URL+"crash-android-"+date+".json", date); err != nil {
+			fmt.Println("******getting data on ", date, " failed********")
+			fmt.Println(err)
+		} else {
+			fmt.Println("******getting data on ", date, " successful********")
 		}
-	}
-	//往前第八天的数据删除
-	t = t.AddDate(0, 0, -1)
-	y, m, d := t.Date()
-	date := fmt.Sprintf("%.4d-%.2d-%.2d", y, m, d)
-	if strings.Contains(crashDate, date) {
-		crashDate = strings.Replace(crashDate, date+"\n", "", 1)
-		orm.SetTable("dbcrash").Where("date=", date).DeleteRow()
 	}
 	return nil
 }
 
+//每小时执行一次
+func PeriodTask() {
+	UpdateTime = time.Now()
+	//删除当天数据以及第7天前数据
+	t := []time.Time{time.Now(), time.Now().AddDate(0, 0, -7)}
+	for _, v := range t {
+		orm.SetTable("dbcrash").Where("date=?", getDateString(v)).DeleteRow()
+	}
+	for _, v := range CRASH_URL_TODAY {
+		GetAllJsonObject(v, getDateString(time.Now()))
+	}
+}
+
+func getDateString(t time.Time) string {
+	y, m, d := t.Date()
+	date := fmt.Sprintf("%.4d-%.2d-%.2d", y, m, d)
+	return date
+}
+
 //解析崩溃object
-func GetAllJsonObject(date string) error {
-	url := CRASH_URL + "crash-android-" + date + ".json"
+func GetAllJsonObject(url, date string) error {
 	fmt.Println("start getting data on ", url)
 	//最多尝试3次
 	var resp *http.Response
@@ -155,11 +172,18 @@ func GetAllJsonObject(date string) error {
 	re, _ := regexp.Compile("\\{.*\\}")
 	allJson := re.FindAll(body, -1)
 
-	re, _ = regexp.Compile("(\\n+|\\s{2,}|java:\\d+)")
-	var tmp CrashObj
+	//re, _ = regexp.Compile("(\\n+|\\s{2,}|java:\\d+)")
+	re, _ = regexp.Compile("(\\s+|\\d+)")
+
 	var log, _uid, crashType string
+	var dbcount int
+	dbcount = 0
 	for _, v := range allJson {
+		var tmp CrashObj
 		json.Unmarshal(v, &tmp)
+		if tmp.Ct != "android" {
+			continue
+		}
 		for _, v := range tmp.Evs {
 			if v.Val.Log != "" {
 				log = v.Val.Log
@@ -167,9 +191,8 @@ func GetAllJsonObject(date string) error {
 			}
 		}
 		h := md5.New()
-		io.WriteString(h, re.ReplaceAllString(log, " "))
+		io.WriteString(h, re.ReplaceAllString(log, ""))
 		_md5 := fmt.Sprintf("%x", h.Sum(nil))
-		fmt.Println(_md5)
 		if value, ok := tmp.Uid.(string); ok {
 			_uid = value
 		} else if value, ok := tmp.Uid.(int); ok {
@@ -181,35 +204,35 @@ func GetAllJsonObject(date string) error {
 
 		dbCrash := Dbcrash{0, _uid, tmp.App, tmp.Os, tmp.Appnm, tmp.Sc, tmp.Did, tmp.Net, tmp.Ct, tmp.City, tmp.Dm, tmp.Uuid, tmp.Ch, log, _md5, date, crashType}
 
-		fmt.Println(dbCrash)
+		//fmt.Println(dbCrash)
 		if err := orm.Save(&dbCrash); err != nil {
 			fmt.Println(err)
+		} else {
+			dbcount += 1
 		}
 	}
+	fmt.Println("getting crash count:", dbcount)
 	return nil
 }
 
 func getCrashType(crash string) string {
-	index := strings.Index(crash, "Caused by:")
-	var subCrash string
-	if index == -1 {
-		subCrash = crash
-	} else {
-		subCrash = crash[index+len("Caused by:"):]
-	}
-	index = strings.Index(subCrash, ":")
 	var crashType string
-	if index == -1 {
-		crashType = "TypeNotFound"
+	re, _ := regexp.Compile("Caused\\s*by:\\s*[^\\s:]+")
+	subCrash := re.FindString(crash)
+	if subCrash == "" {
+		re, _ = regexp.Compile("^[^\\s:]+")
+		crashType = re.FindString(crash)
 	} else {
-		crashType = subCrash[:index]
+		index := strings.Index(subCrash, ":")
+		crashType = subCrash[index+1:]
 	}
-	return crashType
+	return strings.TrimSpace(crashType)
 }
 
-func GetFilteredCrashObj(app, version, channel, date, _md5 string) []Dbcrash {
+func GetDataForAppPage(app, date, version, channel string, start, limit int) (int, int, [][]map[string][]byte) {
 	var filter string
-	var result []Dbcrash
+	var total, logcount int
+	var result [][]map[string][]byte
 	if app != "" {
 		filter = filter + "appnm='" + app + "' "
 	}
@@ -222,46 +245,68 @@ func GetFilteredCrashObj(app, version, channel, date, _md5 string) []Dbcrash {
 	if date != "" {
 		filter = filter + "and date='" + date + "' "
 	}
-	if _md5 != "" {
-		filter = filter + "and md5='" + _md5 + "' "
-	}
-	//if m, err := orm.SetTable("dbcrash").Where(filter).Select("id").FindMap(); err == nil {
-	//	count = len(m)
-	//}
-	fmt.Println("filter:", filter)
-	orm.Where(filter).Limit(0, 20).FindAll(&result)
-	fmt.Println("*****GetFilteredCrashObj*****")
-	fmt.Println(result)
-	return result
+	m, _ := orm.SetTable("dbcrash").Select("count(*) as count").Where(filter).FindMap()
+	total, _ = strconv.Atoi(string(m[0]["count"]))
+
+	m, _ = orm.SetTable("dbcrash").Select("count(distinct md5) as count").Where(filter).FindMap()
+	logcount, _ = strconv.Atoi(string(m[0]["count"]))
+
+	m, _ = orm.SetTable("dbcrash").Select("crashtype,log,md5,count(*)").Where(filter).GroupBy("md5").OrderBy("count(*) desc").Limit(limit, start).FindMap()
+	result = append(result, m)
+
+	m, _ = orm.SetTable("dbcrash").Select("date,count(*)").Where(filter).GroupBy("date").OrderBy("date").FindMap()
+	result = append(result, m)
+
+	m, _ = orm.SetTable("dbcrash").Select("crashtype,count(*)").Where(filter).GroupBy("crashtype").OrderBy("count(*) desc").FindMap()
+	result = append(result, m)
+
+	m, _ = orm.SetTable("dbcrash").Select("app,count(*)").Where(filter).GroupBy("app").OrderBy("count(*) desc").FindMap()
+	result = append(result, m)
+
+	m, _ = orm.SetTable("dbcrash").Select("dm,count(*)").Where(filter).GroupBy("dm").OrderBy("count(*) desc").FindMap()
+	result = append(result, m)
+
+	m, _ = orm.SetTable("dbcrash").Select("ch,count(*)").Where(filter).GroupBy("ch").OrderBy("count(*) desc").FindMap()
+	result = append(result, m)
+	return total, logcount, result
 }
 
-//func GetCrashGroupByMd5(app, version, channel, date string) []map[string][]byte {
-//	var filter string
-//	var result []map[string][]byte
-//	if app != "" {
-//		filter = filter + "appnm='" + app + "' "
-//	}
-//	if version != "" {
-//		filter = filter + "and app='" + version + "' "
-//	}
-//	if channel != "" {
-//		filter = filter + "and ch='" + channel + "' "
-//	}
-//	if date != "" {mysql.gomysql.gomysql.go
-//		filter = filter + "and date='" + date + "' "
-//	}
-//	result, _ = orm.Select("log,count(*)").Where(filter).GroupBy("md5").OrderBy("count(*) desc").FindMap()
-//	fmt.Println("*****GetCrashGroupByMd5*****")
-//	fmt.Println(result)
-//	return result
-//}
+func GetDataForCrashPage(app, date, version, channel, md5 string) (int, []Dbcrash, [][]map[string][]byte) {
+	var filter string
+	var count int
+	var crashObj []Dbcrash
+	var result [][]map[string][]byte
+	if app != "" {
+		filter = filter + "appnm='" + app + "' "
+	}
+	if date != "" {
+		filter = filter + "and date='" + date + "' "
+	}
+	if version != "" {
+		filter = filter + "and app='" + version + "' "
+	}
+	if channel != "" {
+		filter = filter + "and ch='" + channel + "' "
+	}
+	if md5 != "" {
+		filter = filter + "and md5='" + md5 + "' "
+	}
+	m, _ := orm.SetTable("dbcrash").Select("count(*) as count").Where(filter).FindMap()
+	count, _ = strconv.Atoi(string(m[0]["count"]))
 
-//func GetCrashMap(filter, group string) []map[string][]byte {
-//	var result map[string]int
-//	result = make(map[string]int)
-//	dbMap := orm.SetTable("dbcrash").Select(group + ",count(*)").Where(filter).GroupBy(group).OrderBy("count(*) desc").FindMap()
-//	for _, m := range dbMap {
-//		key := string(m[group])
-//		value := int()
-//	}
-//}
+	orm.Where(filter).Limit(20, 0).FindAll(&crashObj)
+
+	m, _ = orm.SetTable("dbcrash").Select("date,count(*)").Where(filter).GroupBy("date").OrderBy("date").FindMap()
+	result = append(result, m)
+
+	m, _ = orm.SetTable("dbcrash").Select("app,count(*)").Where(filter).GroupBy("app").OrderBy("count(*) desc").FindMap()
+	result = append(result, m)
+
+	m, _ = orm.SetTable("dbcrash").Select("dm,count(*)").Where(filter).GroupBy("dm").OrderBy("count(*) desc").FindMap()
+	result = append(result, m)
+
+	m, _ = orm.SetTable("dbcrash").Select("os,count(*)").Where(filter).GroupBy("os").OrderBy("count(*) desc").FindMap()
+	result = append(result, m)
+
+	return count, crashObj, result
+}

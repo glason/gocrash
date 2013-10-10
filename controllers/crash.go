@@ -1,11 +1,13 @@
 package controllers
 
 import (
-	//"crash.android.meituan/models"
+	"crash.android.meituan/models"
 	"github.com/astaxie/beego"
+	"regexp"
 
-////"net/url"
-//"strconv"
+	////"net/url"
+	"strconv"
+
 //"strings"
 )
 
@@ -14,7 +16,61 @@ type CrashController struct {
 }
 
 func (this *CrashController) Get() {
+	var app, date, version, channel, md5 string
+	var count int
+	var dbCrash []http.Dbcrash
+	var dateStats, versionStats, deviceStats, osStats []CrashStats
+
+	app = this.GetString("app")
+	date = this.GetString("date")
+	version = this.GetString("version")
+	channel = this.GetString("channel")
+	md5 = this.GetString("md5")
+
+	var tmpmap [][]map[string][]byte
+
+	count, dbCrash, tmpmap = http.GetDataForCrashPage(app, date, version, channel, md5)
+
+	for _, m := range tmpmap[0] {
+		s := string(m["date"])
+		c, _ := strconv.Atoi(string(m["count(*)"]))
+		t := CrashStats{s, c}
+		dateStats = append(dateStats, t)
+	}
+	for _, m := range tmpmap[1] {
+		s := string(m["app"])
+		c, _ := strconv.Atoi(string(m["count(*)"]))
+		t := CrashStats{s, c}
+		versionStats = append(versionStats, t)
+	}
+	for _, m := range tmpmap[2] {
+		s := string(m["dm"])
+		c, _ := strconv.Atoi(string(m["count(*)"]))
+		t := CrashStats{s, c}
+		deviceStats = append(deviceStats, t)
+	}
+	for _, m := range tmpmap[3] {
+		s := string(m["os"])
+		c, _ := strconv.Atoi(string(m["count(*)"]))
+		t := CrashStats{s, c}
+		osStats = append(osStats, t)
+	}
+
+	detail := dbCrash[0].Log
+	re, _ := regexp.Compile("java:\\d+")
+	detail = re.ReplaceAllString(detail, "java:***")
+
 	this.TplNames = "crash.html"
+	this.Data["Appnm"] = app
+	this.Data["Total"] = count
+	this.Data["CrashType"] = dbCrash[0].Crashtype
+	this.Data["CrashDetail"] = detail
+	this.Data["Dbcrash"] = dbCrash
+	this.Data["DateStats"] = dateStats
+	this.Data["VersionStats"] = versionStats
+	this.Data["DeviceStats"] = deviceStats
+	this.Data["OsStats"] = osStats
+
 	//this.Data["Appnm"], _ = this.GetSession("app").(string)
 
 	//crashID := this.Ctx.Params[":crash"]

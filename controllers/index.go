@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"crash.android.meituan/models"
 	"github.com/astaxie/beego"
 )
 
@@ -10,4 +11,5 @@ type MainController struct {
 
 func (this *MainController) Get() {
 	this.TplNames = "index.html"
+	this.Data["Time"] = http.UpdateTime
 }

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0040)http://192.168.2.231/projects?name=hotel -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -20,103 +19,103 @@
           function filter(id,option){
             $("#"+id).val(option)
             $("form").submit()
-        }
-            var data_date = new google.visualization.DataTable();
-            data_date.addColumn('string','Date')
-            data_date.addColumn('number','Crash')
-            data_date.addRows([
-              {{range $k,$v := .MapDate}}
-              ['{{$k}}',{{$v}}],
-              {{end}}
-              ]);
+          }
+          var data_date = new google.visualization.DataTable();
+          data_date.addColumn('string','Date')
+          data_date.addColumn('number','Crash')
+          data_date.addRows([
+            {{range .DateStats}}
+            ['{{.Name}}',{{.Count}}],
+            {{end}}
+            ]);
 
-            var options_date = {
-              title: 'crash trend',
-              pointSize: '5'
-            };
+          var options_date = {
+            title: 'crash trend',
+            pointSize: '5'
+          };
 
-            var chart_date = new google.visualization.LineChart(document.getElementById('chart_div'));
-            function dateSelectHandler() {
-              var selectedItem = chart_date.getSelection()[0];
-              if (selectedItem) {
-                var topping = data_date.getValue(selectedItem.row, 0);
-                filter('project_date',topping)
+          var chart_date = new google.visualization.LineChart(document.getElementById('chart_div'));
+          function dateSelectHandler() {
+            var selectedItem = chart_date.getSelection()[0];
+            if (selectedItem) {
+              var topping = data_date.getValue(selectedItem.row, 0);
+              filter('project_date',topping)
 
-              }
             }
-            google.visualization.events.addListener(chart_date, 'select', dateSelectHandler);  
-            chart_date.draw(data_date, options_date);
+          }
+          google.visualization.events.addListener(chart_date, 'select', dateSelectHandler);  
+          chart_date.draw(data_date, options_date);
           //version
           var data_version = google.visualization.arrayToDataTable([
             ['Version','Crash']
-            {{range $k,$v := .MapVersion}}
-            ,['{{$k}}',{{$v}}]
+            {{range .VersionStats}}
+            ,['{{.Name}}',{{.Count}}]
             {{end}}
             ]);
 
           var options_version = {
             title: 'version distribution',
-            sliceVisibilityThreshold: '0.02'
+            sliceVisibilityThreshold: '0.01'
           };
 
           var chart_version = new google.visualization.PieChart(document.getElementById('piechart_version'));
           function versionSelectHandler() {
-              var selectedItem = chart_version.getSelection()[0];
-              if (selectedItem) {
-                var topping = data_version.getValue(selectedItem.row, 0);
-                filter('project_app',topping)
+            var selectedItem = chart_version.getSelection()[0];
+            if (selectedItem) {
+              var topping = data_version.getValue(selectedItem.row, 0);
+              filter('project_app',topping)
 
-              }
             }
-            google.visualization.events.addListener(chart_version, 'select', versionSelectHandler);  
+          }
+          google.visualization.events.addListener(chart_version, 'select', versionSelectHandler);  
           chart_version.draw(data_version, options_version);
-          //channel
+          //device
           var data_channel = google.visualization.arrayToDataTable([
-            ['Channel','Crash']
-            {{range $k,$v := .MapChannel}}
-            ,['{{$k}}',{{$v}}]
+            ['Device','Crash']
+            {{range .DeviceStats}}
+            ,['{{.Name}}',{{.Count}}]
             {{end}}
             ]);
 
           var options_channel = {
-            title: 'channel distribution',
-            sliceVisibilityThreshold: '0.02'
+            title: 'device distribution',
+            sliceVisibilityThreshold: '0.01'
           };
 
           var chart_channel = new google.visualization.PieChart(document.getElementById('piechart_channel'));
-          function channelSelectHandler() {
-              var selectedItem = chart_channel.getSelection()[0];
-              if (selectedItem) {
-                var topping = data_channel.getValue(selectedItem.row, 0);
-                filter('project_ch',topping)
+          // function channelSelectHandler() {
+          //     var selectedItem = chart_channel.getSelection()[0];
+          //     if (selectedItem) {
+          //       var topping = data_channel.getValue(selectedItem.row, 0);
+          //       filter('project_ch',topping)
 
-              }
-            }
-          google.visualization.events.addListener(chart_channel, 'select', channelSelectHandler);  
-          chart_channel.draw(data_channel, options_channel);
+          //     }
+          //   }
+         // google.visualization.events.addListener(chart_channel, 'select', channelSelectHandler);  
+         chart_channel.draw(data_channel, options_channel);
           //type
           var data_type = google.visualization.arrayToDataTable([
             ['Type','Crash']
-            {{range $k,$v := .MapType}}
-            ,['{{$k}}',{{$v}}]
+            {{range .TypeStats}}
+            ,['{{.Name}}',{{.Count}}]
             {{end}}
             ]);
 
           var options_type = {
             title: 'crash type distribution',
-            sliceVisibilityThreshold: '0.02'
+            sliceVisibilityThreshold: '0.01'
           };
 
           var chart_type = new google.visualization.PieChart(document.getElementById('piechart_type'));
-          function typeSelectHandler() {
-              var selectedItem = chart_type.getSelection()[0];
-              if (selectedItem) {
-                var topping = data_type.getValue(selectedItem.row, 0);
-                filter('project_type',topping)
+          // function typeSelectHandler() {
+          //     var selectedItem = chart_type.getSelection()[0];
+          //     if (selectedItem) {
+          //       var topping = data_type.getValue(selectedItem.row, 0);
+          //       filter('project_type',topping)
 
-              }
-            }
-          google.visualization.events.addListener(chart_type, 'select', typeSelectHandler);  
+          //     }
+          //   }
+          // google.visualization.events.addListener(chart_type, 'select', typeSelectHandler);  
           chart_type.draw(data_type, options_type);
         }
         </script>
@@ -146,64 +145,66 @@
           </tr>   
         </table>
 
-  <div class="content white">
-    <div class="content-inner">
-      <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
-        <form accept-charset="UTF-8" action="/{{.App}}" method="get">
-          <div style="margin:0;padding:0;display:inline"></div>
-          <select id="project_app" name="version">
-            <option value="">
-              App Version - All
-            </option>
-            {{range .AllVersion}}
-            <script type="text/javascript">
-            if (location.href.indexOf("version={{.}}")!=-1){
-              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
-            }else{
-              document.write("<option value='{{.}}' >{{.}}</option>")
-            }
-            </script>
-                          <!--   <option value="{{.}}">
-                                {{.}}
-                              </option> -->
-                              {{end}}
-                            </select> <select id="project_date" name="date">
-                            <option value="">
-                              Crash Date - Last 7 days
-                            </option>
-                            {{range .AllDate}}
-                            <script type="text/javascript">
-                            if (location.href.indexOf("date={{.}}")!=-1){
-                              document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
-                            }else{
-                              document.write("<option value='{{.}}' >{{.}}</option>")
-                            }
-                            </script>
-                            {{end}}
-                          </select> <select id="project_ch" name="channel">
-                          <option value="">
-                            App Channel - All
-                          </option>
-                          {{range .AllChannel}}
-                          <script type="text/javascript">
-                          if (location.href.indexOf("channel={{.}}")!=-1){
-                            document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
-                          }else{
-                            document.write("<option value='{{.}}' >{{.}}</option>")
-                          }
-                          </script>
-                          {{end}}
-                        </select>
+        <div class="content white">
+          <div class="content-inner">
+            <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
+              <form accept-charset="UTF-8" action="/{{.App}}" method="get">
+                <div style="margin:0;padding:0;display:inline"></div>
+                <select id="project_date" name="date">
+                  <option value="">
+                    Crash Date - Last 7 days
+                  </option>
+                  {{range .DateOpt}}
+                  <script type="text/javascript">
+                  // if (location.href.indexOf("date={{.}}")!=-1){
+                    if({{.}}=={{$.Date}}){
+                      document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+                    }else{
+                      document.write("<option value='{{.}}' >{{.}}</option>")
+                    }
+                  </script>
+                    {{end}}
+                  </select>
+                  <select id="project_app" name="version">
+                    <option value="">
+                      App Version - All
+                    </option>
+                    {{range .VersionOpt}}
+                    <script type="text/javascript">
+                  // if (location.href.indexOf("version={{.}}")!=-1){
+                    if({{.}}=={{$.Version}}){
+                      document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+                    }else{
+                      document.write("<option value='{{.}}' >{{.}}</option>")
+                    }
+                     </script>
+                        {{end}}
+                      </select> <select id="project_ch" name="channel">
+                      <option value="">
+                        App Channel - All
+                      </option>
+                      {{range .ChannelOpt}}
+                      <script type="text/javascript">
+                    // if (location.href.indexOf("channel={{.}}")!=-1){
+                      if({{.}}=={{$.Channel}}){
+                        document.write("<option value='{{.}}' selected='selected'>{{.}}</option>")
+                      }else{
+                        document.write("<option value='{{.}}' >{{.}}</option>")
+                      }
+                     </script>
+                      <option value='{{.}}' >{{.}}</option>
+                      {{end}}
+                    </select>
 
-                         <input type="submit" value="Filter"/>
-                      </form>
-                    </div>
-                    <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
-                      <h2>
-                        Total: {{.Total}}
-                      </h2>
-                    </div>
-                    {{range $i,$_ := .AllCrashLog}}
+                          <input type="submit" value="Filter"/>
+                        </form>
+                      </div>
+                      <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
+                        <h2>
+                          Total: {{.Total}}
+                        </h2>
+                      </div>
+                    {{range .CrashLog}}
                     <div class="crash-feature">
                       <div class="left">
                         <table>
@@ -221,7 +222,7 @@
                                 Description:
                               </td>
                               <td class="code">
-                                <a href="/crash/{{$i}}" class="crash-link">{{.Description}}...</a>
+                                <a href="/crash?app={{$.App}}&date={{$.Date}}&version={{$.Version}}&channel={{$.Channel}}&md5={{.Md5}}" class="crash-link">{{.Description}}...</a>
 
                               </td>
                             </tr>
@@ -240,30 +241,30 @@
                       </div>
                       <div style="clear:both"></div>
                     </div>{{end}}
-                    <div class="pagination" style="width=800px;word-break:break-all">
-                      <script type="text/javascript">
-                      var cur = {{.CurPage}}
-                      var total ={{.TotalPage}}
-                      var url = location.href
-                      if (url.indexOf("page")!=-1){
-                        url=url.replace(/page=\d+/,"page=")
-                      }else if(url.indexOf("?")!=-1){
-                        url=url+"&amp;page="
-                      }else{
-                        url=url+"?page="
-                      }
-                      for (var i=1;i<=total;i++){
-                        if(i==cur){
-                          document.write("<em class='current'>"+i+"<\/em>")
-                        }else if(i<=3||total-i<=3||Math.abs(i-cur)<=3){
-                          document.write("<a href='"+url+i+"'>"+i+"<\/a>")
-                        }else if(Math.abs(i-cur)==4){
-                          document.write("<em class='current'>...<\/em>")
+                      <div class="pagination" style="width=800px;word-break:break-all">
+                        <script type="text/javascript">
+                        var cur = {{.CurPage}}
+                        var total ={{.TotalPage}}
+                        var url = location.href
+                        if (url.indexOf("page")!=-1){
+                          url=url.replace(/page=\d+/,"page=")
+                        }else if(url.indexOf("?")!=-1){
+                          url=url+"&amp;page="
+                        }else{
+                          url=url+"?page="
                         }
-                      }
-                      </script>
+                        for (var i=1;i<=total;i++){
+                          if(i==cur){
+                            document.write("<em class='current'>"+i+"<\/em>")
+                          }else if(i<=3||total-i<=3||Math.abs(i-cur)<=3){
+                            document.write("<a href='"+url+i+"'>"+i+"<\/a>")
+                          }else if(Math.abs(i-cur)==4){
+                            document.write("<em class='current'>...<\/em>")
+                          }
+                        }
+                        </script>
+                      </div>
                     </div>
-                  </div>
-                </div><!--<a href="/charts">view charts</a>-->
-              </body>
-              </html>
+                  </div><!--<a href="/charts">view charts</a>-->
+                </body>
+                </html>
