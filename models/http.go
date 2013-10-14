@@ -132,21 +132,27 @@ func InitialCrashData() error {
 
 //每小时执行一次
 func PeriodTask() {
-	UpdateTime = time.Now()
+	t := time.Now()
+	//每天10点之后，6点之前，不抓取数据
+	if t.Hour() > 21 || t.Hour() < 6 {
+		return
+	}
+	//每天6点至7点之间，删除昨天和七天前数据，并重新读入昨天数据
+	if t.Hour() == 6 {
+		orm.SetTable("dbcrash").Where("date=?", getDateString(time.Now().AddDate(0, 0, -7))).DeleteRow()
+		date := getDateString(time.Now().AddDate(0, 0, -1))
+		orm.SetTable("dbcrash").Where("date=?", date).DeleteRow()
+		GetAllJsonObject(CRASH_URL+"crash-android-"+date+".json", date)
+	}
+	UpdateTime = t
 	cmd := exec.Command("sh", "crash.sh")
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
 	if err != nil {
 		fmt.Println(err)
-	}
-
-	//删除当天数据以及第7天前数据
-	t := []time.Time{time.Now(), time.Now().AddDate(0, 0, -7)}
-	for _, v := range t {
-		orm.SetTable("dbcrash").Where("date=?", getDateString(v)).DeleteRow()
+		return
 	}
 	GetAllJsonObject("", getDateString(time.Now()))
-
 }
 
 func getDateString(t time.Time) string {
@@ -157,7 +163,7 @@ func getDateString(t time.Time) string {
 
 //解析崩溃object
 func GetAllJsonObject(url, date string) error {
-	fmt.Println("start getting data on ", url)
+	fmt.Println("start getting data on ", url, "---", time.Now())
 	//最多尝试3次
 	var buf []byte
 	var err error
