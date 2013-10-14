@@ -10,6 +10,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -111,9 +113,8 @@ func init() {
 
 //在服务器http://10.64.11.188:8080/crash/上解析所有崩溃日志文件
 func InitialCrashData() error {
-	//GetAllJsonObject("2013-08-29")
-	//return nil
 	orm.SetTable("dbcrash").DeleteRow()
+	//return nil
 	t := time.Now()
 	for i := 1; i <= CRASH_DAYS; i++ {
 		t = t.AddDate(0, 0, -1)
@@ -132,14 +133,20 @@ func InitialCrashData() error {
 //每小时执行一次
 func PeriodTask() {
 	UpdateTime = time.Now()
+	cmd := exec.Command("sh", "crash.sh")
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	//删除当天数据以及第7天前数据
 	t := []time.Time{time.Now(), time.Now().AddDate(0, 0, -7)}
 	for _, v := range t {
 		orm.SetTable("dbcrash").Where("date=?", getDateString(v)).DeleteRow()
 	}
-	for _, v := range CRASH_URL_TODAY {
-		GetAllJsonObject(v, getDateString(time.Now()))
-	}
+	GetAllJsonObject("", getDateString(time.Now()))
+
 }
 
 func getDateString(t time.Time) string {
@@ -152,25 +159,35 @@ func getDateString(t time.Time) string {
 func GetAllJsonObject(url, date string) error {
 	fmt.Println("start getting data on ", url)
 	//最多尝试3次
-	var resp *http.Response
+	var buf []byte
 	var err error
-	for i := 0; i < 3; i++ {
-		resp, err = http.Get(url)
-		if err == nil {
-			break
+	if url == "" {
+		cmd := exec.Command("cat", "crash.json")
+		buf, err = cmd.Output()
+		if err != nil {
+			return err
 		}
-	}
-	if resp == nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	} else {
+		var resp *http.Response
+		for i := 0; i < 3; i++ {
+			resp, err = http.Get(url)
+			if err == nil {
+				break
+			}
+		}
+		if resp == nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		buf, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
 	}
 
 	re, _ := regexp.Compile("\\{.*\\}")
-	allJson := re.FindAll(body, -1)
+	allJson := re.FindAll(buf, -1)
 
 	//re, _ = regexp.Compile("(\\n+|\\s{2,}|java:\\d+)")
 	re, _ = regexp.Compile("(\\s+|\\d+)")
