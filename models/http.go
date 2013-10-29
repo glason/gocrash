@@ -27,7 +27,7 @@ type CrashObj struct {
 	Sc    string //屏幕大小
 	Did   string
 	Net   string //网络
-	Ct    string //?
+	Ct    string //iphone,android,wp
 	City  string //城市
 	Evs   []CrashEvs
 	Dm    string //设备型号
@@ -204,35 +204,35 @@ func GetAllJsonObject(url, date string) error {
 	for _, v := range allJson {
 		var tmp CrashObj
 		json.Unmarshal(v, &tmp)
-		if tmp.Ct != "android" {
+		if tmp.Ct != "android" && tmp.Ct != "wp" {
 			continue
 		}
 		for _, v := range tmp.Evs {
 			if v.Val.Log != "" {
 				log = v.Val.Log
-				break
+				h := md5.New()
+				io.WriteString(h, re.ReplaceAllString(log, ""))
+				_md5 := fmt.Sprintf("%x", h.Sum(nil))
+				if value, ok := tmp.Uid.(string); ok {
+					_uid = value
+				} else if value, ok := tmp.Uid.(int); ok {
+					_uid = strconv.Itoa(value)
+				} else {
+					_uid = ""
+				}
+				crashType = getCrashType(log)
+
+				dbCrash := Dbcrash{0, _uid, tmp.App, tmp.Os, tmp.Appnm, tmp.Sc, tmp.Did, tmp.Net, tmp.Ct, tmp.City, tmp.Dm, tmp.Uuid, tmp.Ch, log, _md5, date, crashType}
+
+				//fmt.Println(dbCrash)
+				if err := orm.Save(&dbCrash); err != nil {
+					fmt.Println(err)
+				} else {
+					dbcount += 1
+				}
 			}
 		}
-		h := md5.New()
-		io.WriteString(h, re.ReplaceAllString(log, ""))
-		_md5 := fmt.Sprintf("%x", h.Sum(nil))
-		if value, ok := tmp.Uid.(string); ok {
-			_uid = value
-		} else if value, ok := tmp.Uid.(int); ok {
-			_uid = strconv.Itoa(value)
-		} else {
-			_uid = ""
-		}
-		crashType = getCrashType(log)
 
-		dbCrash := Dbcrash{0, _uid, tmp.App, tmp.Os, tmp.Appnm, tmp.Sc, tmp.Did, tmp.Net, tmp.Ct, tmp.City, tmp.Dm, tmp.Uuid, tmp.Ch, log, _md5, date, crashType}
-
-		//fmt.Println(dbCrash)
-		if err := orm.Save(&dbCrash); err != nil {
-			fmt.Println(err)
-		} else {
-			dbcount += 1
-		}
 	}
 	fmt.Println("getting crash count:", dbcount)
 	return nil
@@ -252,12 +252,15 @@ func getCrashType(crash string) string {
 	return strings.TrimSpace(crashType)
 }
 
-func GetDataForAppPage(app, date, version, channel string, start, limit int) (int, int, [][]map[string][]byte) {
+func GetDataForAppPage(app, context, date, version, channel string, start, limit int) (int, int, [][]map[string][]byte) {
 	var filter string
 	var total, logcount int
 	var result [][]map[string][]byte
 	if app != "" {
 		filter = filter + "appnm='" + app + "' "
+	}
+	if context != "" {
+		filter = filter + "and ct='" + context + "' "
 	}
 	if version != "" {
 		filter = filter + "and app='" + version + "' "
@@ -294,13 +297,16 @@ func GetDataForAppPage(app, date, version, channel string, start, limit int) (in
 	return total, logcount, result
 }
 
-func GetDataForCrashPage(app, date, version, channel, md5 string) (int, []Dbcrash, [][]map[string][]byte) {
+func GetDataForCrashPage(app, context, date, version, channel, md5 string) (int, []Dbcrash, [][]map[string][]byte) {
 	var filter string
 	var count int
 	var crashObj []Dbcrash
 	var result [][]map[string][]byte
 	if app != "" {
 		filter = filter + "appnm='" + app + "' "
+	}
+	if context != "" {
+		filter = filter + "and ct='" + context + "' "
 	}
 	if date != "" {
 		filter = filter + "and date='" + date + "' "

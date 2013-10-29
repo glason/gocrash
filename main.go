@@ -22,7 +22,7 @@ func init() {
 func main() {
 	beego.Router("/", &controllers.MainController{})
 	beego.Router("/crash", &controllers.CrashController{})
-	beego.Router("/:app", &controllers.AppController{})
+	beego.Router("/:context/:app", &controllers.AppController{})
 	beego.Run()
 }
 

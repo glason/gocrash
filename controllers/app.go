@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"crash.android.meituan/models"
-	//"fmt"
 	"github.com/astaxie/beego"
 	"regexp"
 	"sort"
@@ -31,7 +30,7 @@ const CRASH_PER_PAGE = 20
 
 func (this *AppController) Get() {
 	//参数
-	var app, version, channel, date string
+	var app, version, channel, date, context string
 	var page, logcount, total int
 	//CrashLog
 	var crashLog []CrashLog
@@ -41,6 +40,7 @@ func (this *AppController) Get() {
 	var dateOpt, versionOpt, channelOpt []string
 
 	app = this.Ctx.Params[":app"]
+	context = this.Ctx.Params[":context"]
 	version = this.GetString("version")
 	date = this.GetString("date")
 	channel = this.GetString("channel")
@@ -50,7 +50,7 @@ func (this *AppController) Get() {
 		page = 1
 	}
 	var tmpmap [][]map[string][]byte
-	total, logcount, tmpmap = http.GetDataForAppPage(app, date, version, channel, (page-1)*CRASH_PER_PAGE, CRASH_PER_PAGE)
+	total, logcount, tmpmap = http.GetDataForAppPage(app, context, date, version, channel, (page-1)*CRASH_PER_PAGE, CRASH_PER_PAGE)
 
 	re, _ := regexp.Compile("java:\\d+")
 	for _, m := range tmpmap[0] {
@@ -104,6 +104,7 @@ func (this *AppController) Get() {
 
 	this.TplNames = "app.html"
 	this.Data["App"] = app
+	this.Data["Context"] = context
 	this.Data["Date"] = date
 	this.Data["Channel"] = channel
 	this.Data["Version"] = version

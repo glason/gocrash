@@ -123,7 +123,7 @@
       <body>
         <div class="head">
           <div class="head-inner">
-            <a href="/">all</a> &gt; <a href="/{{.App}}">{{.App}}</a>
+            <a href="/">all</a> &gt; <a href="/{{.Context}}/{{.App}}">{{.App}}</a>
           </div>
         </div>
         <table style="width:100%;border-bottom:solid 20px black;">
@@ -148,7 +148,7 @@
         <div class="content white">
           <div class="content-inner">
             <div style="border-bottom: solid 1px #EEE; padding: 20px 0 20px 0;">
-              <form accept-charset="UTF-8" action="/{{.App}}" method="get">
+              <form accept-charset="UTF-8" action="/{{.Context}}/{{.App}}" method="get">
                 <div style="margin:0;padding:0;display:inline"></div>
                 <select id="project_date" name="date">
                   <option value="">
@@ -221,7 +221,7 @@
                                 Description:
                               </td>
                               <td class="code">
-                                <a href="/crash?app={{$.App}}&date={{$.Date}}&version={{$.Version}}&channel={{$.Channel}}&md5={{.Md5}}" class="crash-link">{{.Description}}...</a>
+                                <a href="/crash?app={{$.App}}&context={{$.Context}}&date={{$.Date}}&version={{$.Version}}&channel={{$.Channel}}&md5={{.Md5}}" class="crash-link">{{.Description}}...</a>
 
                               </td>
                             </tr>

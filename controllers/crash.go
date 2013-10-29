@@ -16,12 +16,13 @@ type CrashController struct {
 }
 
 func (this *CrashController) Get() {
-	var app, date, version, channel, md5 string
+	var app, context, date, version, channel, md5 string
 	var count int
 	var dbCrash []http.Dbcrash
 	var dateStats, versionStats, deviceStats, osStats []CrashStats
 
 	app = this.GetString("app")
+	context = this.GetString("context")
 	date = this.GetString("date")
 	version = this.GetString("version")
 	channel = this.GetString("channel")
@@ -29,7 +30,7 @@ func (this *CrashController) Get() {
 
 	var tmpmap [][]map[string][]byte
 
-	count, dbCrash, tmpmap = http.GetDataForCrashPage(app, date, version, channel, md5)
+	count, dbCrash, tmpmap = http.GetDataForCrashPage(app, context, date, version, channel, md5)
 
 	for _, m := range tmpmap[0] {
 		s := string(m["date"])
@@ -62,6 +63,7 @@ func (this *CrashController) Get() {
 
 	this.TplNames = "crash.html"
 	this.Data["Appnm"] = app
+	this.Data["Context"] = context
 	this.Data["Total"] = count
 	this.Data["CrashType"] = dbCrash[0].Crashtype
 	this.Data["CrashDetail"] = detail
