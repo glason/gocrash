@@ -120,12 +120,14 @@ func InitialCrashData() error {
 		t = t.AddDate(0, 0, -1)
 		date := getDateString(t)
 
-		if err := GetAllJsonObject(CRASH_URL+"crash-"+date+".json", date); err != nil {
-			fmt.Println("******getting data on ", date, " failed********")
-			fmt.Println(err)
-		} else {
-			fmt.Println("******getting data on ", date, " successful********")
-		}
+		//if err := GetAllJsonObject(CRASH_URL+"crash-android-"+date+".json", date); err != nil {
+		//	fmt.Println("******getting data on ", date, " failed********")
+		//	fmt.Println(err)
+		//} else {
+		//	fmt.Println("******getting data on ", date, " successful********")
+		//}
+		GetAllJsonObject(CRASH_URL+"crash-android-"+date+".json", date)
+		GetAllJsonObject(CRASH_URL+"crash-wp-"+date+".json", date)
 	}
 	return nil
 }
@@ -142,7 +144,8 @@ func PeriodTask() {
 		orm.SetTable("dbcrash").Where("date=?", getDateString(time.Now().AddDate(0, 0, -7))).DeleteRow()
 		date := getDateString(time.Now().AddDate(0, 0, -1))
 		orm.SetTable("dbcrash").Where("date=?", date).DeleteRow()
-		GetAllJsonObject(CRASH_URL+"crash-"+date+".json", date)
+		GetAllJsonObject(CRASH_URL+"crash-android-"+date+".json", date)
+		GetAllJsonObject(CRASH_URL+"crash-wp-"+date+".json", date)
 	}
 	UpdateTime = t
 	cmd := exec.Command("sh", "crash.sh")
