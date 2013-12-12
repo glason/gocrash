@@ -207,6 +207,9 @@ func GetAllJsonObject(url, date string) error {
 	for _, v := range allJson {
 		var tmp CrashObj
 		json.Unmarshal(v, &tmp)
+		if tmp.Ct == "androidhd" || tmp.Ct == "androidtv" {
+			tmp.Ct = "android"
+		}
 		if tmp.Ct != "android" && tmp.Ct != "wp" {
 			continue
 		}
